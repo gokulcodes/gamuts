@@ -39,7 +39,7 @@ export default defineConfig({
       manifest: manifest,
       registerType: "autoUpdate",
       devOptions: {
-        enabled: false,
+        enabled: true,
       },
     }),
     react(),
