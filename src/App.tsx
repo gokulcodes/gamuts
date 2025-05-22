@@ -6,16 +6,27 @@ function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mouseDown = useRef<React.MouseEvent | React.TouchEvent>(null);
   const contextRef = useRef<CanvasRenderingContext2D>(null);
+  function setCanvasSize() {
+    if (!canvasRef.current) {
+      return;
+    }
+    const canvas = canvasRef.current;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight - canvas.offsetTop;
+  }
   useEffect(() => {
     if (!canvasRef.current) {
       return;
     }
 
     const canvas = canvasRef.current;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight - 200;
+    setCanvasSize();
     const ctx = canvas.getContext("2d");
     contextRef.current = ctx;
+    window.addEventListener("resize", setCanvasSize);
+    return () => {
+      window.removeEventListener("resize", setCanvasSize);
+    };
   }, [canvasRef]);
 
   function handleMouseDown(event: React.MouseEvent | React.TouchEvent) {
@@ -87,7 +98,7 @@ function App() {
   }
 
   return (
-    <div className="flex flex-col gap-4 items-center justify-center w-full h-full">
+    <div className="flex flex-col gap-4 items-center justify-start w-full h-full">
       <a href="https://vite.dev" target="_blank">
         <img src={gamutsLogo} className="logo" alt="Vite logo" />
       </a>
