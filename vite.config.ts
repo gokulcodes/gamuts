@@ -2,7 +2,7 @@ import { VitePWA, type ManifestOptions } from "vite-plugin-pwa";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import tailwindcss from "@tailwindcss/vite";
-// import manifest from "./public/manifest.json";
+
 const manifest: Partial<ManifestOptions> = {
   theme_color: "#121212",
   background_color: "#121212",
@@ -39,7 +39,7 @@ export default defineConfig({
       manifest: manifest,
       registerType: "autoUpdate",
       devOptions: {
-        enabled: true,
+        enabled: false,
       },
     }),
     react(),
