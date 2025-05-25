@@ -77,7 +77,40 @@ A simple tool that lets you sketch diagrams quickly with a hand-drawn feel and t
 
 Architecture:
 
+- ToolBar
+
+  - Rectangle
+  - Circle
+  - Polygon
+  - Text
+  - Line
+  - Arrow
+  - Pen tool
+  - Image
+  - Eraser
+
+- Zoomer
+
+  - ZoomOut
+  - ZoomIn
+  - Percentage
+
+- Export
+
+  - Will be visible on any item selected
+  - PDF, SVG, PNG, JPG
+
+- OptionsBar - Visible when any shape is selected inside the canvas
+
+  - Connectors - Helps to create connections between shapes
+  - Position will be above the selected object
+  - Provides appropriate edit options for the selected item
+
+- Undo/Redo Bar
+
 Data Modal:
+
+- Structures
 
 Interfaces:
 

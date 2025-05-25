@@ -1,7 +1,7 @@
 import gamutsLogo from "/gamuts_logo.svg";
 import "./App.css";
 import { useEffect, useRef } from "react";
-// import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import Konva from "konva";
 import {
   Circle,
@@ -11,6 +11,7 @@ import {
   Stage,
   Transformer,
   Group,
+  Line,
 } from "react-konva";
 
 // type Shape = {
@@ -239,59 +240,68 @@ function App() {
       <a href="/">
         <img src={gamutsLogo} className="logo" alt="Vite logo" />
       </a>
-      {/* <TransformWrapper>
-        <TransformComponent> */}
-      <Stage
-        ref={canvasRef}
-        width={window.innerWidth}
-        height={window.innerHeight}
-      >
-        <Layer>
-          <Group>
-            <Rect
-              ref={rectRef}
-              x={20}
-              y={50}
-              width={100}
-              onDblClick={(event) => console.log(event)}
-              height={100}
-              fill="white"
-              shadowBlur={10}
-              draggable={true}
-            ></Rect>
-            <Text
-              x={20}
-              y={50}
-              text="Try to drag shapes"
-              draggable
-              width={100}
-              fontSize={15}
-            />
-          </Group>
-          <Transformer
-            ref={trRef}
-            padding={6}
-            centeredScaling={true}
-            rotationSnapTolerance={100}
-            rotateAnchorOffset={20}
-            rotateLineVisible={false}
-            anchorSize={6}
-            borderStroke="green"
-            anchorCornerRadius={6}
-            anchorFill="green"
-            anchorStroke="green"
-            // anchorFill=""
-            // boundBoxFunc={(oldBox, newBox) => {
-            //   // limit resize
-            //   if (newBox.width > 200) {
-            //     return oldBox;
-            //   }
-            //   return newBox;
-            // }}
-          />
-          {/* <Text text="Try to drag shapes" draggable fontSize={15} />
-           */}
-          {/* <Arc
+      <TransformWrapper minScale={0.5} panning={{ disabled: true }}>
+        <TransformComponent>
+          <Stage
+            ref={canvasRef}
+            width={window.innerWidth}
+            height={window.innerHeight}
+          >
+            <Layer>
+              <Group>
+                <Rect
+                  ref={rectRef}
+                  x={20}
+                  y={50}
+                  width={100}
+                  onDblClick={(event) => console.log(event)}
+                  height={100}
+                  fill="white"
+                  shadowBlur={10}
+                  draggable={true}
+                ></Rect>
+                <Line
+                  points={[5, 70, 140, 23, 250, 60, 300, 20]}
+                  stroke="red"
+                  strokeWidth={15}
+                  lineCap="round"
+                  lineJoin="round"
+                  draggable
+                  y={5}
+                />
+                <Text
+                  x={20}
+                  y={50}
+                  text="Try to drag shapes"
+                  draggable
+                  width={100}
+                  fontSize={15}
+                />
+              </Group>
+              <Transformer
+                ref={trRef}
+                padding={6}
+                centeredScaling={true}
+                rotationSnapTolerance={100}
+                rotateAnchorOffset={20}
+                rotateLineVisible={false}
+                anchorSize={6}
+                borderStroke="green"
+                anchorCornerRadius={6}
+                anchorFill="green"
+                anchorStroke="green"
+                // anchorFill=""
+                // boundBoxFunc={(oldBox, newBox) => {
+                //   // limit resize
+                //   if (newBox.width > 200) {
+                //     return oldBox;
+                //   }
+                //   return newBox;
+                // }}
+              />
+              {/* <Text text="Try to drag shapes" draggable fontSize={15} />
+               */}
+              {/* <Arc
             x={window.innerWidth / 2}
             y={window.innerHeight / 2}
             innerRadius={40}
@@ -302,11 +312,11 @@ function App() {
             stroke="black"
             strokeWidth={4}
           /> */}
-          <Circle x={200} y={100} radius={50} fill="white" draggable />
-        </Layer>
-      </Stage>
-      {/* </TransformComponent>
-      </TransformWrapper> */}
+              <Circle x={200} y={100} radius={50} fill="white" draggable />
+            </Layer>
+          </Stage>
+        </TransformComponent>
+      </TransformWrapper>
     </div>
   );
 }
