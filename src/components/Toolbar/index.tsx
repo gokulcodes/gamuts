@@ -22,7 +22,7 @@ function ToolRenderer(props: { tool: ToolTypes }) {
   return (
     <button
       title={tool.name}
-      className="text-3xl p-4 rounded-xl cursor-pointer hover:bg-white/10"
+      className="text-3xl p-4 rounded-xl cursor-pointer hover:bg-green-900/10 hover:text-green-400"
       onClick={() => tool.action()}
     >
       {tool.icon}
@@ -149,7 +149,7 @@ function Toolbar() {
   ];
   return (
     <aside className="absolute z-50  right-4 transition-all h-full flex flex-col items-center justify-center">
-      <div className="flex flex-col shadow-2xl animate-toolbarOpen items-center justify-center border border-white/10 bg-foreground px-2 py-6 rounded-2xl">
+      <div className="flex flex-col shadow-2xl animate-toolbarOpen items-center justify-center border border-white/10 bg-foreground px-2 py-4 rounded-2xl">
         {Tools.map((tool) => (
           <ToolRenderer tool={tool} />
         ))}

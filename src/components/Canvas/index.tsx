@@ -18,6 +18,7 @@ import AppController from "../../controllers/AppController";
 // };
 function Canvas() {
   const canvasRef = useRef<Konva.Stage>(null);
+  const [zoomLevel, setZoomLevel] = useState(0);
   // const mouseDown = useRef<React.MouseEvent | React.TouchEvent>(null);
   // const contextRef = useRef<CanvasRenderingContext2D>(null);
   // const [shapes, setShapes] = useState<Array<Shape>>([]);
@@ -35,10 +36,11 @@ function Canvas() {
   }, []);
 
   function setCanvasSize() {
-    if (!canvasRef.current) {
+    if (!transformRef.current) {
       return;
     }
-    // const canvas = canvasRef.current;
+    // const canvas = transformRef.current;
+    // console.log(canvas);
     // canvas.width = window.innerWidth;
     // canvas.height = window.innerHeight;
   }
@@ -256,17 +258,15 @@ function Canvas() {
   //   },
   // ];
 
-  console.log(
-    state.structures,
-    state.structures.map((struct) => struct.render())
-  );
+  console.log(state.structures);
   return (
     <TransformWrapper
       ref={transformRef}
-      minScale={0.5}
+      minScale={1}
+      onTransformed={(event) => setZoomLevel(event.state.scale)}
       panning={{ disabled: pan }}
     >
-      <Zoomer />
+      <Zoomer zoomLevel={zoomLevel} />
       <TransformComponent>
         <Stage
           ref={canvasRef}
