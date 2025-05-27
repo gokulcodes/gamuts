@@ -10,3 +10,78 @@ html,
 body {
   overscroll-behavior: none;
 }
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: #1d1d1d;
+  --font-editor: "Space Mono", sans-serif;
+  --font-sans: "Host Grotesk", sans-serif;
+  --animate-toolbarOpen: toolbarOpen 0.8s ease-in-out;
+  --animate-sidebarClose: sidebarClose 0.4s ease-in-out;
+  --animate-open: open 0.4s ease-in-out;
+  @keyframes open {
+    0% {
+      opacity: 0;
+      transform: translateY(-40px);
+      transform-origin: center;
+    }
+    100% {
+      /* height: 10px; */
+      opacity: 1;
+      transform: translateY(0px);
+      transform-origin: center;
+    }
+  }
+  @keyframes cursorBlink {
+    0% {
+      opacity: 1;
+      transform: scaleY(1);
+      transform-origin: center;
+    }
+    50% {
+      opacity: 0;
+      transform: scaleY(0.9);
+      transform-origin: center;
+    }
+    100% {
+      /* height: 10px; */
+      opacity: 1;
+      transform: scaleY(1);
+      transform-origin: center;
+    }
+  }
+  @keyframes toolbarOpen {
+    0% {
+      opacity: 0;
+      transform: translateX(100px);
+      transform-origin: right;
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0px);
+      transform-origin: right;
+    }
+  }
+  @keyframes sidebarClose {
+    0% {
+      opacity: 1;
+      width: 25%;
+      /* transform: translateX(0px); */
+      transform-origin: left;
+    }
+    50% {
+      /* height: 10px; */
+      opacity: 0;
+      /* width: 12.5%; */
+      /* transform: translateX(-1000px); */
+      transform-origin: left;
+    }
+    100% {
+      /* height: 10px; */
+      opacity: 0;
+      width: 0%;
+      /* transform: translateX(-1000px); */
+      transform-origin: left;
+    }
+  }
+}
