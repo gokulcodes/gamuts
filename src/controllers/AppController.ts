@@ -1,26 +1,16 @@
-import { createContext } from "react";
+import React, { createContext } from "react";
+import { TOOL, type Shape } from "../libs";
 
 export const initialState = {
   toolbarVisible: false,
   structures: [],
-};
-
-export type Shape = {
-  x: number;
-  y: number;
-  width: number;
-  sides: number;
-  radius: number;
-  height: number;
-  fill: string;
-  draggable: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-  render: Function;
+  activeTool: TOOL.SELECT,
 };
 
 type State = {
   toolbarVisible: boolean;
   structures: Array<Shape>;
+  activeTool: string;
 };
 
 type ActionType = {
@@ -39,6 +29,8 @@ export const reducer = (state: State, action: ActionType): State => {
       return { ...state, toolbarVisible: action.payload.toolbarVisible };
     case "mutateStructures":
       return { ...state, structures: action.payload.structures };
+    case "changeTool":
+      return { ...state, activeTool: action.payload.activeTool };
     default:
       return state;
   }

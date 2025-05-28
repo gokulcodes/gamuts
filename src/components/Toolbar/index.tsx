@@ -7,22 +7,38 @@ import { IoImageOutline, IoTriangleOutline } from "react-icons/io5";
 import { TbBallpen, TbLine } from "react-icons/tb";
 import gamutsLogo from "/gamuts_logo.svg";
 import AppController from "../../controllers/AppController";
-import { Circle, Rect, RegularPolygon } from "react-konva";
+import { LuMousePointer2 } from "react-icons/lu";
+import useImage from "use-image";
+import { TOOL } from "../../libs";
+// import { Circle, Rect, RegularPolygon } from "react-konva";
 
 type ToolTypes = {
-  id: number;
+  id: string;
   name: string;
+  // name:
+  //   | "SELECT"
+  //   | "RECT"
+  //   | "CIRCLE"
+  //   | "TRIANGLE"
+  //   | "LINE"
+  //   | "ARROW"
+  //   | "TEXT"
+  //   | "DRAW"
+  //   | "IMAGE"
+  //   | "ERASER";
   icon: ReactElement;
   // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   action: Function;
 };
 
-function ToolRenderer(props: { tool: ToolTypes }) {
+function ToolRenderer(props: { tool: ToolTypes; isActive: boolean }) {
   const tool = props.tool;
   return (
     <button
       title={tool.name}
-      className="text-3xl p-4 rounded-xl cursor-pointer hover:bg-green-900/10 hover:text-green-400"
+      className={`text-2xl p-4 rounded-xl outline-none cursor-pointer ${
+        props.isActive ? "bg-green-700/10 text-green-400" : ""
+      } hover:bg-green-700/10 hover:text-green-400`}
       onClick={() => tool.action()}
     >
       {tool.icon}
@@ -32,7 +48,10 @@ function ToolRenderer(props: { tool: ToolTypes }) {
 
 function Toolbar() {
   const { state, dispatch } = useContext(AppController);
-  function CreateShapes(shapeName: "Rect" | "Circle" | "Triangle") {
+  const [image] = useImage(gamutsLogo);
+  function CreateShapes(
+    shapeName: "Rect" | "Circle" | "Triangle" | "Arrow" | "Image"
+  ) {
     let shape;
     let structures = state.structures;
     switch (shapeName) {
@@ -45,12 +64,13 @@ function Toolbar() {
           sides: 0,
           radius: 0,
           fill: "white",
+          points: [],
+          stroke: "transparent",
           draggable: true,
-          render: function () {
-            return <Rect {...this} />;
-          },
+          shapeName: "rect",
         };
         structures = [...structures, shape];
+        updateActiveTool(TOOL.RECT);
         break;
       case "Circle":
         shape = {
@@ -59,14 +79,14 @@ function Toolbar() {
           width: 200,
           height: 200,
           sides: 0,
+          stroke: "transparent",
           radius: 100,
           fill: "white",
           draggable: true,
-          render: function () {
-            return <Circle {...this} />;
-          },
+          shapeName: "circle",
         };
         structures = [...structures, shape];
+        updateActiveTool(TOOL.CIRCLE);
         break;
       case "Triangle":
         shape = {
@@ -76,13 +96,49 @@ function Toolbar() {
           height: 200,
           sides: 3,
           radius: 80,
+          stroke: "transparent",
           fill: "white",
           draggable: true,
-          render: function () {
-            return <RegularPolygon {...this} />;
-          },
+          shapeName: "polygon",
         };
         structures = [...structures, shape];
+        updateActiveTool(TOOL.TRIANGLE);
+        break;
+      case "Arrow":
+        shape = {
+          x: 600,
+          y: 600,
+          width: 200,
+          height: 200,
+          sides: 3,
+          points: [0, 0, 100, 100],
+          radius: 80,
+          image: image,
+          fill: "white",
+          stroke: "white",
+          draggable: true,
+          shapeName: "arrow",
+        };
+        structures = [...structures, shape];
+        updateActiveTool(TOOL.ARROW);
+        break;
+      case "Image":
+        if (!image) break;
+        shape = {
+          x: 600,
+          y: 600,
+          width: 200,
+          height: 200,
+          radius: 80,
+          image: image,
+          fill: "transparent",
+          sides: 4,
+          stroke: "transparent",
+          draggable: true,
+          shapeName: "image",
+        };
+        structures = [...structures, shape];
+        updateActiveTool(TOOL.IMAGE);
         break;
     }
     dispatch({
@@ -91,57 +147,73 @@ function Toolbar() {
     });
   }
 
+  function updateActiveTool(tool: string) {
+    dispatch({ type: "changeTool", payload: { ...state, activeTool: tool } });
+  }
+
   const Tools: Array<ToolTypes> = [
     {
-      id: 1,
+      id: TOOL.SELECT,
+      name: "Selector",
+      icon: <LuMousePointer2 />,
+      action: () => {
+        updateActiveTool(TOOL.SELECT);
+      },
+    },
+    {
+      id: TOOL.RECT,
       name: "Rectangle",
       icon: <BiRectangle />,
       action: () => CreateShapes("Rect"),
     },
     {
-      id: 2,
+      id: TOOL.CIRCLE,
       name: "Circle",
       icon: <BiCircle />,
       action: () => CreateShapes("Circle"),
     },
     {
-      id: 3,
+      id: TOOL.TRIANGLE,
       name: "Triangle",
       icon: <IoTriangleOutline />,
       action: () => CreateShapes("Triangle"),
     },
     {
-      id: 4,
+      id: TOOL.LINE,
       name: "Line",
       icon: <TbLine />,
-      action: () => {},
+      action: () => {
+        updateActiveTool(TOOL.LINE);
+      },
     },
     {
-      id: 5,
+      id: TOOL.ARROW,
       name: "Arrow",
       icon: <HiOutlineArrowUpRight />,
-      action: () => {},
+      action: () => CreateShapes("Arrow"),
     },
     {
-      id: 6,
+      id: TOOL.TEXT,
       name: "Text",
       icon: <CiText />,
       action: () => {},
     },
     {
-      id: 7,
+      id: TOOL.DRAW,
       name: "Pen Tool",
       icon: <TbBallpen />,
-      action: () => {},
+      action: () => {
+        updateActiveTool(TOOL.DRAW);
+      },
     },
     {
-      id: 8,
+      id: TOOL.IMAGE,
       name: "Image",
       icon: <IoImageOutline />,
-      action: () => {},
+      action: () => CreateShapes("Image"),
     },
     {
-      id: 9,
+      id: TOOL.ERASER,
       name: "Eraser",
       icon: <BsEraser />,
       action: () => {},
@@ -149,9 +221,13 @@ function Toolbar() {
   ];
   return (
     <aside className="absolute z-50  right-4 transition-all h-full flex flex-col items-center justify-center">
-      <div className="flex flex-col shadow-2xl animate-toolbarOpen items-center justify-center border border-white/10 bg-foreground px-2 py-4 rounded-2xl">
+      <div className="flex flex-col backdrop-blur-2xl gap-1 shadow-2xl animate-toolbarOpen items-center justify-center border border-white/10 bg-foreground/60 px-2 py-4 rounded-2xl">
         {Tools.map((tool) => (
-          <ToolRenderer tool={tool} />
+          <ToolRenderer
+            key={tool.id}
+            isActive={state.activeTool === tool.id}
+            tool={tool}
+          />
         ))}
       </div>
       <a href="/" className="absolute bottom-5">
