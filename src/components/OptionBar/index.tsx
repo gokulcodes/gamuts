@@ -367,10 +367,10 @@ function OptionBar() {
       }}
       className="shadow-2xl select-none h-full max-h-3xl transition-all max-w-lg w-lg border z-10 border-white/10 rounded-2xl animate-optionOpen bg-foreground/80 backdrop-blur-2xl"
     >
-      <div className="m-4 flex justify-between border border-white/10 rounded-xl">
+      <div className="m-3 mb-5 flex justify-between border border-white/10 rounded-xl">
         <button
           onClick={() => setActiveTab(0)}
-          className={`w-full uppercase text-xs tracking-widest p-4 m-1 rounded-xl cursor-pointer ${
+          className={`w-full uppercase text-xs tracking-widest p-3 m-1 rounded-xl cursor-pointer ${
             activeTab == 0 ? "bg-green-800/10 text-green-400" : ""
           } `}
         >
@@ -378,7 +378,7 @@ function OptionBar() {
         </button>
         <button
           onClick={() => setActiveTab(1)}
-          className={`w-full uppercase text-xs tracking-widest p-4 m-1 rounded-xl cursor-pointer ${
+          className={`w-full uppercase text-xs tracking-widest p-3 m-1 rounded-xl cursor-pointer ${
             activeTab == 1 ? "bg-green-800/10 text-green-400" : ""
           } `}
         >
@@ -559,41 +559,43 @@ function OptionBar() {
         </div>
       ) : (
         <div className="flex animate-openUp flex-col gap-4">
-          <div className="flex px-8 flex-row items-start gap-4 justify-between">
-            <p>Blur</p>
-            <input
-              type="number"
-              value={optionState.blur}
-              className="border px-2 rounded-md w-20 outline-none border-white/10"
-              onChange={(e) => updateOption("blur", e)}
-            />
-          </div>
-          <div className="flex px-8 border-t border-white/10 pt-4 flex-row items-start gap-4 justify-between">
-            <p>Brightness</p>
-            <input
-              type="number"
-              value={optionState.brightness}
-              className="border px-2 rounded-md w-20 outline-none border-white/10"
-              onChange={(e) => updateOption("brightness", e)}
-            />
-          </div>
-          <div className="flex px-8 border-t border-white/10 pt-4 flex-row items-start gap-4 justify-between">
-            <p>Contrast</p>
-            <input
-              type="number"
-              value={optionState.contrast}
-              className="border px-2 rounded-md w-20 outline-none border-white/10"
-              onChange={(e) => updateOption("contrast", e)}
-            />
-          </div>
-          <div className="flex px-8 border-t border-white/10 pt-4 flex-row items-start gap-4 justify-between">
-            <p>Enhance</p>
-            <input
-              type="number"
-              value={optionState.enhance}
-              className="border px-2 rounded-md w-20 outline-none border-white/10"
-              onChange={(e) => updateOption("enhance", e)}
-            />
+          <div className="flex flex-wrap w-full">
+            <div className="flex px-8 flex-row items-start gap-4 w-1/2 justify-between">
+              <p>Blur</p>
+              <input
+                type="number"
+                value={optionState.blur}
+                className="border px-2 rounded-md w-20 outline-none border-white/10"
+                onChange={(e) => updateOption("blur", e)}
+              />
+            </div>
+            <div className="flex px-8  pb-4 flex-row items-start w-1/2 gap-4 justify-between">
+              <p>Brightness</p>
+              <input
+                type="number"
+                value={optionState.brightness}
+                className="border px-2 rounded-md w-20 outline-none border-white/10"
+                onChange={(e) => updateOption("brightness", e)}
+              />
+            </div>
+            <div className="flex px-8 border-t border-white/10 pt-4 w-1/2 flex-row items-start gap-4 justify-between">
+              <p>Contrast</p>
+              <input
+                type="number"
+                value={optionState.contrast}
+                className="border px-2 rounded-md w-20 outline-none border-white/10"
+                onChange={(e) => updateOption("contrast", e)}
+              />
+            </div>
+            <div className="flex px-8 border-t border-white/10 pt-4 w-1/2 flex-row items-start gap-4 justify-between">
+              <p>Enhance</p>
+              <input
+                type="number"
+                value={optionState.enhance}
+                className="border px-2 rounded-md w-20 outline-none border-white/10"
+                onChange={(e) => updateOption("enhance", e)}
+              />
+            </div>
           </div>
           <div className="flex px-8 border-t border-white/10 pt-4 flex-row items-start gap-4 justify-between">
             <p>Grayscale</p>

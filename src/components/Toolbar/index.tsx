@@ -37,7 +37,7 @@ function ToolRenderer(props: { tool: ToolTypes; isActive: boolean }) {
   return (
     <button
       title={tool.name}
-      className={`text-2xl p-4 rounded-xl outline-none cursor-pointer ${
+      className={`text-xl p-3 rounded-xl outline-none cursor-pointer ${
         props.isActive ? "bg-green-700/10 text-green-400" : ""
       } hover:bg-green-700/10 hover:text-green-400`}
       onClick={() => tool.action()}
@@ -223,8 +223,8 @@ function Toolbar() {
     },
   ];
   return (
-    <div className="absolute z-50 right-4 pointer-events-none transition-all h-full ">
-      <aside className="gap-4 flex flex-row items-start pointer-events-auto justify-center relative top-1/3">
+    <div className="absolute z-50 right-5 top-0 h-full pointer-events-none  transition-all ">
+      <aside className="gap-4 flex flex-row items-start pointer-events-auto justify-center relative top-1/5">
         <OptionBar />
         <div className="flex flex-col z-0 backdrop-blur-2xl gap-1 shadow-2xl animate-toolbarOpen items-center justify-center border border-white/10 bg-foreground/60 p-2 rounded-2xl">
           {Tools.map((tool) => (
@@ -238,7 +238,7 @@ function Toolbar() {
       </aside>
       <a
         href="/"
-        className="absolute pointer-events-auto z-50 right-5 bottom-5"
+        className="absolute pointer-events-auto z-50 right-2 bottom-5"
       >
         <img src={gamutsLogo} className="logo" alt="Vite logo" />
       </a>
