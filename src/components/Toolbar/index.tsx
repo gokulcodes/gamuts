@@ -10,6 +10,7 @@ import AppController from "../../controllers/AppController";
 import { LuMousePointer2 } from "react-icons/lu";
 import useImage from "use-image";
 import { TOOL } from "../../libs";
+import OptionBar from "../OptionBar";
 // import { Circle, Rect, RegularPolygon } from "react-konva";
 
 type ToolTypes = {
@@ -216,24 +217,32 @@ function Toolbar() {
       id: TOOL.ERASER,
       name: "Eraser",
       icon: <BsEraser />,
-      action: () => {},
+      action: () => {
+        updateActiveTool(TOOL.ERASER);
+      },
     },
   ];
   return (
-    <aside className="absolute z-50  right-4 transition-all h-full flex flex-col items-center justify-center">
-      <div className="flex flex-col backdrop-blur-2xl gap-1 shadow-2xl animate-toolbarOpen items-center justify-center border border-white/10 bg-foreground/60 px-2 py-4 rounded-2xl">
-        {Tools.map((tool) => (
-          <ToolRenderer
-            key={tool.id}
-            isActive={state.activeTool === tool.id}
-            tool={tool}
-          />
-        ))}
-      </div>
-      <a href="/" className="absolute bottom-5">
+    <div className="absolute z-50 right-4 pointer-events-none transition-all h-full ">
+      <aside className="gap-4 flex flex-row items-start pointer-events-auto justify-center relative top-1/3">
+        <OptionBar />
+        <div className="flex flex-col z-0 backdrop-blur-2xl gap-1 shadow-2xl animate-toolbarOpen items-center justify-center border border-white/10 bg-foreground/60 p-2 rounded-2xl">
+          {Tools.map((tool) => (
+            <ToolRenderer
+              key={tool.id}
+              isActive={state.activeTool === tool.id}
+              tool={tool}
+            />
+          ))}
+        </div>
+      </aside>
+      <a
+        href="/"
+        className="absolute pointer-events-auto z-50 right-5 bottom-5"
+      >
         <img src={gamutsLogo} className="logo" alt="Vite logo" />
       </a>
-    </aside>
+    </div>
   );
 }
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { useContext, useEffect, useRef, useState } from "react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import Konva from "konva";
@@ -16,15 +17,18 @@ import Zoomer from "../Zoomer";
 import AppController from "../../controllers/AppController";
 import { TOOL } from "../../libs";
 import type { Shape } from "../../libs";
+import gamutsLogo from "/gamuts_logo.svg";
+// import OptionBar from "../OptionBar";
 
 function Canvas() {
   const canvasRef = useRef<Konva.Stage>(null);
   const [zoomLevel, setZoomLevel] = useState(0);
   const trRef = useRef<Konva.Transformer>(null);
+  // const [optionsAnchor, setOptionsAnchor] = useState(null);
   const [pan, setPan] = useState(true);
-  const { state } = useContext(AppController);
+  const { state, dispatch } = useContext(AppController);
   const shapeRefs = useRef(new Map());
-  const [selectedIds, setSelectedIds] = useState<Array<number>>([]);
+  // const [selectedIds, setSelectedIds] = useState<Array<number>>([]);
   const isDrawing = useRef(false);
   const [lines, setLines] = useState<Array<number[]>>([]);
 
@@ -40,7 +44,7 @@ function Canvas() {
       }
     }
     function handlePanUp() {
-      if (canvasRef.current) canvasRef.current.content.style.cursor = "default";
+      // if (canvasRef.current) canvasRef.current.content.style.cursor = "default";
       setPan(true);
     }
     window.addEventListener("keydown", handlePan);
@@ -53,9 +57,9 @@ function Canvas() {
 
   useEffect(() => {
     // shape selections
-    if (selectedIds.length && trRef.current) {
+    if (state.selectedShapes.length && trRef.current) {
       // Get the nodes from the refs Map
-      const nodes = selectedIds
+      const nodes = state.selectedShapes
         .map((id) => shapeRefs.current.get(id))
         .filter((node) => node);
       trRef.current.nodes(nodes);
@@ -63,12 +67,24 @@ function Canvas() {
       // Clear selection
       trRef.current.nodes([]);
     }
-  }, [selectedIds]);
+  }, [state.selectedShapes]);
 
-  function handleMouseDown(event: Konva.KonvaEventObject<MouseEvent>) {
+  useEffect(() => {
+    if (!canvasRef.current) {
+      return;
+    }
+    if (state.activeTool === TOOL.ERASER) {
+      canvasRef.current.content.style.cursor = gamutsLogo;
+      console.log(state.activeTool, canvasRef.current.content.style.cursor);
+    }
+  }, [state.activeTool]);
+
+  function handleMouseDown(
+    event: Konva.KonvaEventObject<MouseEvent | TouchEvent>
+  ) {
     if (
       !canvasRef.current ||
-      selectedIds.length ||
+      state.selectedShapes.length ||
       (state.activeTool !== TOOL.LINE && state.activeTool !== TOOL.DRAW)
     ) {
       return;
@@ -105,15 +121,23 @@ function Canvas() {
     }
   }
 
-  function handleMouseMove(event: Konva.KonvaEventObject<MouseEvent>) {
+  function handleMouseMove(
+    event: Konva.KonvaEventObject<MouseEvent | TouchEvent>
+  ) {
+    // if (state.activeTool === TOOL.ERASER) {
+    //   handleEraser(event);
+    //   return;
+    // }
     if (!isDrawing.current || state.activeTool === TOOL.LINE) {
       // don't do anything for line tool when cursor moves
       return;
     }
+
     const stage = event.target.getStage();
     if (!stage) {
       return;
     }
+
     const point = stage.getPointerPosition();
     if (!point) {
       return;
@@ -131,19 +155,76 @@ function Canvas() {
       return;
     }
     isDrawing.current = false;
-    canvasRef.current.content.style.cursor = "default";
+    // canvasRef.current.content.style.cursor = "default";
+  }
+
+  function handleEraser(event: Konva.KonvaEventObject<MouseEvent>) {
+    if (event.target === event.target.getStage()) {
+      // reset selections when clicked on empty area of the stage
+      dispatch({
+        type: "updateSelectedShapes",
+        payload: { ...state, selectedShapes: [] },
+      });
+      return;
+    }
+
+    let structures = state.structures;
+    structures = structures.filter((_, index) => index !== event.target.index);
+    dispatch({
+      type: "updateSelectedShapes",
+      payload: {
+        ...state,
+        selectedShapes: state.selectedShapes.filter(
+          (_, index) => index !== event.target.index
+        ),
+      },
+    });
+    // setSelectedIds(
+    //   selectedIds.filter((_, index) => index !== event.target.index)
+    // );
+    dispatch({
+      type: "mutateStructures",
+      payload: { ...state, structures: structures },
+    });
   }
 
   function handleStageClick(event: Konva.KonvaEventObject<MouseEvent>) {
     if (event.target === event.target.getStage()) {
       // reset selections when clicked on empty area of the stage
-      setSelectedIds([]);
+      // setOptionsAnchor(null);
+      dispatch({
+        type: "updateSelectedShapes",
+        payload: {
+          ...state,
+          selectedShapes: [],
+        },
+      });
       return;
     }
+    if (state.activeTool === TOOL.ERASER) {
+      handleEraser(event);
+      return;
+    }
+    console.log(event.target);
+    // setOptionsAnchor(event.target.attrs);
     if (event.evt.shiftKey) {
-      setSelectedIds((prev) => [...prev, event.target.index]);
+      let existingShapes = state.selectedShapes;
+      existingShapes = [...existingShapes, event.target.index];
+      dispatch({
+        type: "updateSelectedShapes",
+        payload: {
+          ...state,
+          selectedShapes: existingShapes,
+        },
+      });
     } else {
-      setSelectedIds([event.target.index]);
+      dispatch({
+        type: "updateSelectedShapes",
+        payload: {
+          ...state,
+          selectedShapes: [event.target.index],
+        },
+      });
     }
   }
 
@@ -151,6 +232,7 @@ function Canvas() {
     return shapes.map((struct, index) => {
       if (struct.shapeName === "rect") {
         return (
+          // @ts-expect-error
           <Rect
             ref={(node) => {
               if (node) {
@@ -162,6 +244,7 @@ function Canvas() {
         );
       } else if (struct.shapeName === "circle") {
         return (
+          // @ts-expect-error
           <Circle
             ref={(node) => {
               if (node) {
@@ -173,6 +256,7 @@ function Canvas() {
         );
       } else if (struct.shapeName === "polygon") {
         return (
+          // @ts-expect-error
           <RegularPolygon
             ref={(node) => {
               if (node) {
@@ -184,6 +268,7 @@ function Canvas() {
         );
       } else if (struct.shapeName === "arrow" && struct.points) {
         return (
+          // @ts-expect-error
           <Arrow
             ref={(node) => {
               if (node) {
@@ -196,9 +281,11 @@ function Canvas() {
         );
       } else if (struct.shapeName === "image" && struct.image) {
         return (
+          // @ts-expect-error
           <Image
             ref={(node) => {
               if (node) {
+                node.cache();
                 shapeRefs.current.set(index, node);
               }
             }}
@@ -214,21 +301,26 @@ function Canvas() {
       }
     });
   }
-
+  // console.log(state.structures);
   return (
     <TransformWrapper
       minScale={1}
       onTransformed={(event) => setZoomLevel(event.state.scale)}
       panning={{ disabled: pan }}
     >
+      {/* {optionsAnchor && <OptionBar optionsAnchor={optionsAnchor} />} */}
       <Zoomer zoomLevel={zoomLevel} />
       <TransformComponent>
         <Stage
           ref={canvasRef}
           onClick={handleStageClick}
+          onTap={handleStageClick}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
+          onTouchStart={handleMouseDown}
+          onTouchMove={handleMouseMove}
+          onTouchEnd={handleMouseUp}
           width={window.innerWidth}
           height={window.innerHeight}
         >

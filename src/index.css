@@ -19,11 +19,12 @@ body {
   --font-sans: "Host Grotesk", sans-serif;
   --animate-toolbarOpen: toolbarOpen 0.8s ease-in-out;
   --animate-sidebarClose: sidebarClose 0.4s ease-in-out;
-  --animate-open: open 0.4s ease-in-out;
-  @keyframes open {
+  --animate-optionOpen: optionOpen 0.2s ease-in-out;
+  --animate-openUp: openUp 0.4s ease-in-out;
+  @keyframes openUp {
     0% {
       opacity: 0;
-      transform: translateY(-40px);
+      transform: translateY(40px);
       transform-origin: center;
     }
     100% {
@@ -31,6 +32,21 @@ body {
       opacity: 1;
       transform: translateY(0px);
       transform-origin: center;
+    }
+  }
+  @keyframes optionOpen {
+    0% {
+      opacity: 0;
+      transform: scale(0);
+      transform: translateY(10px);
+      transform-origin: bottom;
+    }
+    100% {
+      /* height: 10px; */
+      opacity: 1;
+      transform: scale(1);
+      transform: translateY(0px);
+      transform-origin: bottom;
     }
   }
   @keyframes cursorBlink {
@@ -84,5 +100,18 @@ body {
       /* transform: translateX(-1000px); */
       transform-origin: left;
     }
+  }
+}
+
+#optionbar * {
+  transition: height 0.5s ease-in;
+  input[type="number"] {
+    -webkit-appearance: textfield;
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
   }
 }
