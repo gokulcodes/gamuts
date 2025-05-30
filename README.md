@@ -115,3 +115,15 @@ Data Modal:
 Interfaces:
 
 Optimization:
+
+TODO:
+Create Shapes using drag
+Import images using drop
+Insert text view
+Insert text inside rect, circle, triangle, shape
+Select multiple object using mouse drag selection
+customization for arrows, lines, pen tool, text
+customize cursor with appropriate tool's image on cursor movement
+implement zoom with react-konva itself. remove another package for infinite zoom
+
+Shape specific options bar

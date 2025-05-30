@@ -8,10 +8,12 @@ import {
   Transformer,
   Rect,
   Circle,
+  Text,
   RegularPolygon,
   Line,
   Arrow,
   Image,
+  // Group,
 } from "react-konva";
 import Zoomer from "../Zoomer";
 import AppController from "../../controllers/AppController";
@@ -299,6 +301,23 @@ function Canvas() {
             {...struct}
           />
         );
+      } else if (struct.shapeName === "text") {
+        return (
+          // @ts-expect-error
+          <Text
+            ref={(node) => {
+              if (node) {
+                shapeRefs.current.set(index, node);
+              }
+            }}
+            // cornerRadius={20}
+            // crop={{
+            //   width: 100,
+            //   height: 100,
+            // }}
+            {...struct}
+          />
+        );
       }
     });
   }
@@ -346,6 +365,17 @@ function Canvas() {
                 // globalCompositeOperation={"source-over"}
               />
             ))}
+            {/* <Group draggable>
+              <Rect width={100} height={100} fill="black" />
+              <Text
+                x={10}
+                y={50 - 18 / 2}
+                fontSize={18}
+                align="center"
+                text="Rectange"
+                fill="white"
+              />
+            </Group> */}
             <Transformer
               ref={trRef}
               // padding={6}

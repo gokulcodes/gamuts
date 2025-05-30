@@ -58,6 +58,7 @@ function Toolbar() {
       | "Circle"
       | "Triangle"
       | "Arrow"
+      | "Text"
       | "Image"
       | "LINE"
       | "DRAW"
@@ -150,6 +151,26 @@ function Toolbar() {
         structures = [...structures, shape];
         updateActiveTool(TOOL.IMAGE);
         break;
+      case "Text":
+        shape = {
+          x: 600,
+          y: 600,
+          // width: 200,
+          // height: 200,
+          sides: 3,
+          points: [0, 0, 100, 100],
+          radius: 80,
+          text: "Gamuts",
+          fontSize: 48,
+          image: image,
+          fill: "white",
+          stroke: "white",
+          draggable: true,
+          shapeName: "text",
+        };
+        structures = [...structures, shape];
+        updateActiveTool(TOOL.TEXT);
+        break;
     }
     dispatch({
       type: "mutateStructures",
@@ -206,7 +227,7 @@ function Toolbar() {
       id: TOOL.TEXT,
       name: "Text",
       icon: <CiText />,
-      action: () => {},
+      action: () => CreateShapes("Text"),
     },
     {
       id: TOOL.DRAW,

@@ -16,10 +16,12 @@ export const TOOL = {
 export type Shape = {
   x: number;
   y: number;
-  width: number;
+  width?: number;
   sides: number;
   radius: number;
-  height: number;
+  height?: number;
+  text?: string;
+  fontSize?: number;
   points?: Array<number>;
   stroke: string;
   image?: HTMLImageElement;
