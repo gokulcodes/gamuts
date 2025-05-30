@@ -1,4 +1,4 @@
-import {
+import React, {
   useCallback,
   useContext,
   useEffect,
@@ -12,17 +12,21 @@ import Konva from "konva";
 import type { Filter } from "konva/lib/Node";
 import { TbJoinBevel, TbJoinRound, TbJoinStraight } from "react-icons/tb";
 
-function OptionBar() {
+function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
   const { state, dispatch } = useContext(AppController);
   const [activeTab, setActiveTab] = useState(0);
   const { structures, selectedShapes } = state;
   const filterAdd = useRef<Set<Filter>>(new Set());
-
+  const { toolBarRef } = props;
   const [optionState, dispatcher] = useReducer(reducer, initialOptionState);
+  const topGradientRef = useRef<HTMLDivElement>(null);
+  const bottomGradientRef = useRef<HTMLDivElement>(null);
+  const previousScrollTop = useRef<number>(0);
+  const optionRef = useRef<HTMLDivElement>(null);
 
   const updateShapeStyle = useCallback(() => {
     const allStruct = structures;
-    console.log(selectedShapes);
+    console.log(allStruct, selectedShapes);
     for (const index of selectedShapes) {
       if (allStruct.length <= index) return;
       allStruct[index].fill = optionState.fill;
@@ -365,40 +369,94 @@ function OptionBar() {
     }
   }
 
-  if (!selectedShapes.length) {
+  function handleGradientVisibility(
+    event: React.UIEvent<HTMLDivElement, UIEvent>
+  ) {
+    if (!bottomGradientRef.current || !topGradientRef.current) {
+      return;
+    }
+    const target = event.target as HTMLDivElement;
+    if (target.clientHeight >= target.scrollHeight) {
+      bottomGradientRef.current.style.opacity = "0";
+      topGradientRef.current.style.opacity = "0";
+      return;
+    }
+    const currentScrollTop = target.scrollTop;
+    if (currentScrollTop > previousScrollTop.current) {
+      bottomGradientRef.current.style.opacity = "0";
+      topGradientRef.current.style.opacity = "1";
+    } else if (currentScrollTop < previousScrollTop.current) {
+      bottomGradientRef.current.style.opacity = "1";
+      topGradientRef.current.style.opacity = "0";
+    }
+
+    previousScrollTop.current = currentScrollTop;
+  }
+
+  useEffect(() => {
+    // if (
+    //   !bottomGradientRef.current ||
+    //   !topGradientRef.current ||
+    //   !optionRef.current
+    // ) {
+    //   return;
+    // }
+    // const canvas = optionRef.current;
+    // if (canvas.clientHeight > canvas.scrollHeight) {
+    //   topGradientRef.current.style.opacity = "1";
+    //   bottomGradientRef.current.style.opacity = "0";
+    //   return;
+    // }
+    // canvas.addEventListener("scroll", handleGradientVisibility);
+    // return () => canvas.removeEventListener("scroll", handleGradientVisibility);
+  }, [bottomGradientRef, topGradientRef, optionRef]);
+
+  if (!selectedShapes.length || !toolBarRef) {
     return;
   }
+
+  const { width } = toolBarRef.getBoundingClientRect();
+
   return (
     <div
       id="optionbar"
+      ref={optionRef}
+      onScroll={handleGradientVisibility}
       style={{
-        height: "fit-content",
+        width: width,
+        height: 500,
         // top: `${optionsAnchor.y - 40}px`,
         // left: `${optionsAnchor.x}px`,
         // width: `${optionsAnchor.width + optionsAnchor.width}px`,
       }}
-      className="shadow-2xl select-none h-full max-h-3xl transition-all max-w-md w-md border z-10 border-white/10 rounded-2xl animate-optionOpen bg-foreground/80 backdrop-blur-2xl"
+      className="shadow-2xl overflow-auto relative select-none h-full max-w-md w-md border z-10 border-white/10 rounded-2xl animate-optionOpen bg-foreground/80 backdrop-blur-2xl"
     >
-      <div className="m-3 mb-5 flex justify-between border border-white/10 rounded-xl">
-        <button
-          onClick={() => setActiveTab(0)}
-          className={`w-full uppercase text-xs tracking-widest p-3 m-1 rounded-xl cursor-pointer ${
-            activeTab == 0 ? "bg-green-800/10 text-green-400" : ""
-          } `}
-        >
-          Edit styles
-        </button>
-        <button
-          onClick={() => setActiveTab(1)}
-          className={`w-full uppercase text-xs tracking-widest p-3 m-1 rounded-xl cursor-pointer ${
-            activeTab == 1 ? "bg-green-800/10 text-green-400" : ""
-          } `}
-        >
-          Filters
-        </button>
+      <div className="w-full bg-foreground sticky top-0 left-0 p-2 z-50 ">
+        <div className="w-full mb-3 flex justify-between border border-white/10 rounded-xl">
+          <button
+            onClick={() => setActiveTab(0)}
+            className={`w-full uppercase text-xs tracking-widest p-3 m-1 rounded-xl cursor-pointer ${
+              activeTab == 0 ? "bg-green-800/10 text-green-400" : ""
+            } `}
+          >
+            Edit styles
+          </button>
+          <button
+            onClick={() => setActiveTab(1)}
+            className={`w-full uppercase text-xs tracking-widest p-3 m-1 rounded-xl cursor-pointer ${
+              activeTab == 1 ? "bg-green-800/10 text-green-400" : ""
+            } `}
+          >
+            Filters
+          </button>
+        </div>
       </div>
+      <div
+        ref={topGradientRef}
+        className="h-30 pointer-events-none w-full bg-gradient-to-b z-50 from-foreground to-transparent sticky top-18 animate-opacity"
+      />
       {activeTab === 0 ? (
-        <div className="flex animate-openUp flex-col gap-4">
+        <div className="flex animate-openUp relative -top-28 flex-col gap-4">
           {/* FIll */}
           <div className="flex px-8 items-center justify-between">
             <p>Fill</p>
@@ -434,7 +492,7 @@ function OptionBar() {
                 />
               </div>
             </div>
-            <div className="flex w-full gap-2">
+            <div className="flex w-full gap-6">
               <div className="flex gap-2 items-center w-full">
                 <label className="text-sm opacity-80" htmlFor="borderstyle">
                   Style
@@ -630,7 +688,7 @@ function OptionBar() {
           </div>
         </div>
       ) : (
-        <div className="flex animate-openUp flex-col gap-4">
+        <div className="flex animate-openUp relative -top-28 flex-col gap-4">
           <div className="flex flex-wrap w-full">
             <div className="flex px-8 flex-row items-start gap-4 w-1/2 justify-between">
               <p>Blur</p>
@@ -734,7 +792,7 @@ function OptionBar() {
             </div>
           </div>
           <div className="flex px-8 border-b border-white/10 pb-4 flex-col items-start gap-4 justify-between">
-            <p>RGB</p>
+            <p>RGBA</p>
             <div className="flex w-full gap-4 ">
               <div className="flex flex-col gap-2 w-full">
                 <div className="flex  flex-row gap-2 items-center">
@@ -864,6 +922,10 @@ function OptionBar() {
           </div>
         </div>
       )}
+      <div
+        ref={bottomGradientRef}
+        className="h-30 pointer-events-none w-full bg-gradient-to-t from-foreground to-transparent sticky bottom-0 animate-opacity"
+      />
     </div>
   );
 }

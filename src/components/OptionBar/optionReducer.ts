@@ -12,7 +12,7 @@ export const initialOptionState: OptionType = {
   shadowOffsetX: 0,
   shadowOffsetY: 0,
   shadowOpacity: 100,
-  lineJoins: "bevel",
+  lineJoins: "miter",
   blendMode: "none",
   blur: 0,
   brightness: 1,

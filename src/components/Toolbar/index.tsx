@@ -1,4 +1,4 @@
-import { useContext, type ReactElement } from "react";
+import { useContext, useRef, type ReactElement } from "react";
 import { BiCircle, BiRectangle } from "react-icons/bi";
 import { BsEraser } from "react-icons/bs";
 import { CiText } from "react-icons/ci";
@@ -50,6 +50,8 @@ function ToolRenderer(props: { tool: ToolTypes; isActive: boolean }) {
 function Toolbar() {
   const { state, dispatch } = useContext(AppController);
   const [image] = useImage(gamutsLogo);
+  const toolBarRef = useRef<HTMLDivElement>(null);
+
   function CreateShapes(
     shapeName:
       | "Rect"
@@ -229,11 +231,15 @@ function Toolbar() {
       },
     },
   ];
+
   return (
-    <div className="absolute z-50 right-5 top-0 h-full pointer-events-none  transition-all ">
-      <aside className="gap-4 flex flex-row items-start pointer-events-auto justify-center relative top-1/4">
-        <OptionBar />
-        <div className="flex flex-col z-0 backdrop-blur-2xl gap-1 shadow-2xl animate-toolbarOpen items-center justify-center border border-white/10 bg-foreground/60 p-2 rounded-2xl">
+    <div className="absolute z-50 left-0 bottom-5 w-full pointer-events-none  transition-all ">
+      <aside className="gap-4 flex flex-col w-full  items-center pointer-events-auto justify-center relative top-1/4">
+        <OptionBar toolBarRef={toolBarRef.current} />
+        <div
+          ref={toolBarRef}
+          className="flex flex-row z-0 backdrop-blur-2xl gap-1 shadow-2xl animate-toolbarOpen items-center justify-center border border-white/10 bg-foreground/60 p-2 rounded-2xl"
+        >
           {Tools.map((tool) => (
             <ToolRenderer
               key={tool.id}
@@ -245,7 +251,7 @@ function Toolbar() {
       </aside>
       <a
         href="/"
-        className="absolute pointer-events-auto z-50 right-2 bottom-5"
+        className="absolute pointer-events-auto z-50 right-5 bottom-0"
       >
         <img src={gamutsLogo} className="logo" alt="Vite logo" />
       </a>

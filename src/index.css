@@ -70,12 +70,12 @@ body {
   @keyframes toolbarOpen {
     0% {
       opacity: 0;
-      transform: translateX(100px);
+      transform: translateY(100px);
       transform-origin: right;
     }
     100% {
       opacity: 1;
-      transform: translateX(0px);
+      transform: translateY(0px);
       transform-origin: right;
     }
   }
@@ -114,4 +114,7 @@ body {
   input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
   }
+}
+#optionbar::-webkit-scrollbar {
+  display: none;
 }

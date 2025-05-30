@@ -18,10 +18,12 @@ import AppController from "../../controllers/AppController";
 import { TOOL } from "../../libs";
 import type { Shape } from "../../libs";
 import gamutsLogo from "/gamuts_logo.svg";
+// import CircleGrid from "./Circle";
 // import OptionBar from "../OptionBar";
 
 function Canvas() {
   const canvasRef = useRef<Konva.Stage>(null);
+  const layerRef = useRef<Konva.Layer>(null);
   const [zoomLevel, setZoomLevel] = useState(0);
   const trRef = useRef<Konva.Transformer>(null);
   // const [optionsAnchor, setOptionsAnchor] = useState(null);
@@ -300,7 +302,7 @@ function Canvas() {
       }
     });
   }
-  console.log(lines);
+
   return (
     <TransformWrapper
       minScale={1}
@@ -323,7 +325,7 @@ function Canvas() {
           width={window.innerWidth}
           height={window.innerHeight}
         >
-          <Layer>
+          <Layer ref={layerRef}>
             {Renderer(state.structures)}
             {lines.map((line, i) => (
               <Line
@@ -373,6 +375,7 @@ function Canvas() {
               // }}
             />
           </Layer>
+          {/* <CircleGrid layerRef={layerRef} /> */}
         </Stage>
       </TransformComponent>
     </TransformWrapper>
