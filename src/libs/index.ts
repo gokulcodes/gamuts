@@ -36,10 +36,12 @@ export type Shape = {
   brightness?: number;
   enhance?: number;
   grayscale?: boolean;
+  contrast?: number;
   hue?: number;
   saturation?: number;
   luminance?: number;
   red?: number;
+  alpha?: number;
   blue?: number;
   green?: number;
   threshold?: number;
@@ -73,6 +75,7 @@ export type OptionType = {
   HSL_hue: number;
   HSL_saturation: number;
   HSL_luminance: number;
+  RGB_alpha: number;
   RGB_red: number;
   RGB_blue: number;
   RGB_green: number;

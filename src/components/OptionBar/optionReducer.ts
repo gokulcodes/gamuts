@@ -25,6 +25,7 @@ export const initialOptionState: OptionType = {
   RGB_red: 0,
   RGB_blue: 0,
   RGB_green: 0,
+  RGB_alpha: 0,
   invert: false,
   KAL_power: 0,
   KAL_angle: 0,
@@ -75,6 +76,8 @@ export function reducer(state: OptionType, action: OptionPayloadType) {
       return { ...state, HSL_saturation: action.payload.HSL_saturation };
     case "HSL_luminance":
       return { ...state, HSL_luminance: action.payload.HSL_luminance };
+    case "RGB_alpha":
+      return { ...state, RGB_alpha: action.payload.RGB_alpha };
     case "RGB_red":
       return { ...state, RGB_red: action.payload.RGB_red };
     case "RGB_blue":

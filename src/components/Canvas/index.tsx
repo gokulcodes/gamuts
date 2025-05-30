@@ -205,7 +205,6 @@ function Canvas() {
       handleEraser(event);
       return;
     }
-    console.log(event.target);
     // setOptionsAnchor(event.target.attrs);
     if (event.evt.shiftKey) {
       let existingShapes = state.selectedShapes;
@@ -301,7 +300,7 @@ function Canvas() {
       }
     });
   }
-  // console.log(state.structures);
+  console.log(lines);
   return (
     <TransformWrapper
       minScale={1}

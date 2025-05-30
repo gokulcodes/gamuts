@@ -51,7 +51,14 @@ function Toolbar() {
   const { state, dispatch } = useContext(AppController);
   const [image] = useImage(gamutsLogo);
   function CreateShapes(
-    shapeName: "Rect" | "Circle" | "Triangle" | "Arrow" | "Image"
+    shapeName:
+      | "Rect"
+      | "Circle"
+      | "Triangle"
+      | "Arrow"
+      | "Image"
+      | "LINE"
+      | "DRAW"
   ) {
     let shape;
     let structures = state.structures;
@@ -224,7 +231,7 @@ function Toolbar() {
   ];
   return (
     <div className="absolute z-50 right-5 top-0 h-full pointer-events-none  transition-all ">
-      <aside className="gap-4 flex flex-row items-start pointer-events-auto justify-center relative top-1/5">
+      <aside className="gap-4 flex flex-row items-start pointer-events-auto justify-center relative top-1/4">
         <OptionBar />
         <div className="flex flex-col z-0 backdrop-blur-2xl gap-1 shadow-2xl animate-toolbarOpen items-center justify-center border border-white/10 bg-foreground/60 p-2 rounded-2xl">
           {Tools.map((tool) => (
