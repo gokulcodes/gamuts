@@ -24,7 +24,7 @@ function OptionBar() {
     const allStruct = structures;
     console.log(selectedShapes);
     for (const index of selectedShapes) {
-      if (allStruct.length >= index) return;
+      if (allStruct.length <= index) return;
       allStruct[index].fill = optionState.fill;
       allStruct[index].stroke = optionState.borderColor;
       allStruct[index].strokeWidth = optionState.borderWidth;
