@@ -25,7 +25,7 @@
 //             fill: "white",
 //             opacity: 0.2,
 //           });
-
+//           circle.moveToBottom();
 //           layer.add(circle);
 //         }
 //       }

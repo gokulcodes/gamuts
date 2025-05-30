@@ -1,6 +1,6 @@
 import { useContext, useRef, type ReactElement } from "react";
 import { BiCircle, BiRectangle } from "react-icons/bi";
-import { BsEraser } from "react-icons/bs";
+import { BsEraser, BsGithub } from "react-icons/bs";
 import { CiText } from "react-icons/ci";
 import { HiOutlineArrowUpRight } from "react-icons/hi2";
 import { IoImageOutline, IoTriangleOutline } from "react-icons/io5";
@@ -249,12 +249,18 @@ function Toolbar() {
           ))}
         </div>
       </aside>
-      <a
-        href="/"
-        className="absolute pointer-events-auto z-50 right-5 bottom-0"
-      >
-        <img src={gamutsLogo} className="logo" alt="Vite logo" />
-      </a>
+      <div className="absolute flex items-center gap-4 pointer-events-auto z-50 right-5 bottom-0">
+        <a
+          href="https://github.com/gokulcodes/gamuts"
+          target="_blank"
+          className="logo text-lg p-4 bg-foreground/40 backdrop-blur-2xl border border-white/10 rounded-xl"
+        >
+          <BsGithub />
+        </a>
+        <a href="/">
+          <img src={gamutsLogo} className="logo" alt="Vite logo" />
+        </a>
+      </div>
     </div>
   );
 }

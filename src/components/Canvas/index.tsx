@@ -68,6 +68,7 @@ function Canvas() {
     } else if (trRef.current) {
       // Clear selection
       trRef.current.nodes([]);
+      trRef.current.moveToTop();
     }
   }, [state.selectedShapes]);
 
@@ -237,6 +238,7 @@ function Canvas() {
           <Rect
             ref={(node) => {
               if (node) {
+                node.moveToTop();
                 shapeRefs.current.set(index, node);
               }
             }}
@@ -249,6 +251,7 @@ function Canvas() {
           <Circle
             ref={(node) => {
               if (node) {
+                node.moveToTop();
                 shapeRefs.current.set(index, node);
               }
             }}
@@ -261,6 +264,7 @@ function Canvas() {
           <RegularPolygon
             ref={(node) => {
               if (node) {
+                node.moveToTop();
                 shapeRefs.current.set(index, node);
               }
             }}
@@ -273,6 +277,7 @@ function Canvas() {
           <Arrow
             ref={(node) => {
               if (node) {
+                node.moveToTop();
                 shapeRefs.current.set(index, node);
               }
             }}
@@ -287,6 +292,7 @@ function Canvas() {
             ref={(node) => {
               if (node) {
                 node.cache();
+                node.moveToTop();
                 shapeRefs.current.set(index, node);
               }
             }}
@@ -334,6 +340,7 @@ function Canvas() {
                 index={i}
                 ref={(node) => {
                   if (node) {
+                    node.moveToTop();
                     shapeRefs.current.set(state.structures.length + i, node);
                   }
                 }}
