@@ -43,7 +43,10 @@ export type Shape = {
   saturation?: number;
   luminance?: number;
   red?: number;
+  fontStyle?: string;
+  fontFamily?: string;
   alpha?: number;
+  textDecoration?: string;
   blue?: number;
   green?: number;
   threshold?: number;
@@ -68,7 +71,11 @@ export type OptionType = {
   shadowOffsetY: number;
   shadowOpacity: number;
   lineJoins: string;
+  textDecoration: string;
   blendMode: string;
+  fontSize: number;
+  fontStyle: string;
+  fontFamily: string;
   blur: number;
   brightness: number;
   contrast: number;

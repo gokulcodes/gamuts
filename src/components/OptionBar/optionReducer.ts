@@ -15,6 +15,10 @@ export const initialOptionState: OptionType = {
   lineJoins: "miter",
   blendMode: "none",
   blur: 0,
+  fontSize: 48,
+  fontStyle: "normal",
+  textDecoration: "normal",
+  fontFamily: "Kaushan Script",
   brightness: 0,
   contrast: 0,
   enhance: 0,
@@ -32,6 +36,7 @@ export const initialOptionState: OptionType = {
   mask: 0,
   noise: 0,
 };
+
 export function reducer(state: OptionType, action: OptionPayloadType) {
   switch (action.type) {
     case "fill":
@@ -94,6 +99,14 @@ export function reducer(state: OptionType, action: OptionPayloadType) {
       return { ...state, mask: action.payload.mask };
     case "noise":
       return { ...state, noise: action.payload.noise };
+    case "fontFamily":
+      return { ...state, fontFamily: action.payload.fontFamily };
+    case "fontSize":
+      return { ...state, fontSize: action.payload.fontSize };
+    case "fontStyle":
+      return { ...state, fontStyle: action.payload.fontStyle };
+    case "textDecoration":
+      return { ...state, textDecoration: action.payload.textDecoration };
     default:
       return state;
   }

@@ -235,6 +235,7 @@ function Canvas() {
         // text: "Gamuts",
         fontSize: 48,
         fill: "white",
+        fontFamily: "Kaushan Script",
         stroke: "transparent",
         draggable: true,
         shapeName: "text",
@@ -573,6 +574,7 @@ function Canvas() {
           />
         );
       } else if (struct.shapeName === "text") {
+        console.log(struct);
         return (
           <TextCustom
             key={index}
@@ -636,7 +638,7 @@ function Canvas() {
             ))}
             <Transformer
               ref={trRef}
-              centeredScaling={false}
+              centeredScaling={true}
               rotationSnapTolerance={100}
               rotateAnchorOffset={20}
               rotateLineVisible={false}

@@ -10,7 +10,14 @@ import AppController from "../../controllers/AppController";
 import { reducer, initialOptionState } from "./optionReducer";
 import Konva from "konva";
 import type { Filter } from "konva/lib/Node";
-import { TbJoinBevel, TbJoinRound, TbJoinStraight } from "react-icons/tb";
+import {
+  TbBold,
+  TbItalic,
+  TbJoinBevel,
+  TbJoinRound,
+  TbJoinStraight,
+  TbUnderline,
+} from "react-icons/tb";
 import { RiEditCircleLine, RiExportLine } from "react-icons/ri";
 import { IoColorFilterOutline } from "react-icons/io5";
 
@@ -54,6 +61,10 @@ function OptionBar(props: { canvasRef: Konva.Stage | null }) {
       allStruct[index].enhance = optionState.enhance / 100;
       allStruct[index].grayscale = optionState.grayscale;
       allStruct[index].hue = optionState.HSL_hue;
+      allStruct[index].fontFamily = optionState.fontFamily;
+      allStruct[index].fontSize = optionState.fontSize;
+      allStruct[index].fontStyle = optionState.fontStyle;
+      allStruct[index].textDecoration = optionState.textDecoration;
       allStruct[index].saturation = optionState.HSL_saturation;
       allStruct[index].luminance = optionState.HSL_luminance;
       allStruct[index].red = optionState.RGB_red;
@@ -378,6 +389,42 @@ function OptionBar(props: { canvasRef: Konva.Stage | null }) {
           },
         });
         break;
+      case "fontFamily":
+        dispatcher({
+          type: "fontFamily",
+          payload: {
+            ...optionState,
+            fontFamily: value,
+          },
+        });
+        break;
+      case "fontSize":
+        dispatcher({
+          type: "fontSize",
+          payload: {
+            ...optionState,
+            fontSize: parseInt(value),
+          },
+        });
+        break;
+      case "fontStyle":
+        dispatcher({
+          type: "fontStyle",
+          payload: {
+            ...optionState,
+            fontStyle: value,
+          },
+        });
+        break;
+      case "textDecoration":
+        dispatcher({
+          type: "textDecoration",
+          payload: {
+            ...optionState,
+            textDecoration: value,
+          },
+        });
+        break;
     }
   }
 
@@ -458,6 +505,84 @@ function OptionBar(props: { canvasRef: Konva.Stage | null }) {
       />
       {activeTab === 0 ? (
         <div className="flex animate-openUp relative -top-28 flex-col gap-4">
+          {/* TEXT_DECORATION */}
+          <div className="flex px-5 border-b border-white/10 pb-4 flex-col items-start gap-4 justify-between">
+            <div className="flex flex-col w-full gap-6">
+              <div className="flex gap-10 items-center w-full">
+                <label
+                  className="text-sm opacity-80 w-54"
+                  htmlFor="fontFamilty"
+                >
+                  Font Family
+                </label>
+                <select
+                  id="fontFamilty"
+                  defaultValue="Kaushan Script"
+                  // value={optionState.borderStyle}
+                  onChange={(e) => updateOption("fontFamily", e.target.value)}
+                  className="border w-full border-white/10 rounded-md outline-none px-2"
+                >
+                  <option value="Arial">Arial</option>
+                  <option value="Space Mono">Space Mono</option>
+                  <option value="Space Grotesk">Space Grotesk</option>
+                  <option value="Work Sans">Work Sans</option>
+                  <option value="DM Sans">DM Sans</option>
+                  <option value="Playfair">Playfair</option>
+                  <option value="Inter">Inter</option>
+                  <option value="Raleway">Raleway</option>
+                  <option value="Tangerine">Tangerine</option>
+                  <option value="Kaushan Script">Kaushan Script</option>
+                </select>
+              </div>
+              <div className="flex gap-10 items-center w-full">
+                <label className="text-sm opacity-80 w-54" htmlFor="fontSize">
+                  Font Size
+                </label>
+                <input
+                  id="fontSize"
+                  min={0}
+                  max={100}
+                  type="number"
+                  value={optionState.fontSize}
+                  className="border w-full border-white/10 rounded-md outline-none px-2"
+                  onChange={(e) => updateOption("fontSize", e.target.value)}
+                />
+              </div>
+              <div className="flex gap-10 items-center w-full">
+                <label className="text-sm opacity-80 w-54" htmlFor="radius">
+                  Font Style
+                </label>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => updateOption("fontStyle", "bold")}
+                    className={`border ${
+                      optionState.fontStyle === "bold" ? "bg-white/10" : ""
+                    } p-2 border-white/10 cursor-pointer rounded-lg hover:bg-white/5`}
+                  >
+                    <TbBold />
+                  </button>
+                  <button
+                    onClick={() => updateOption("textDecoration", "underline")}
+                    className={`border ${
+                      optionState.textDecoration === "underline"
+                        ? "bg-white/10"
+                        : ""
+                    } p-2 border-white/10 cursor-pointer rounded-lg hover:bg-white/5`}
+                  >
+                    <TbUnderline />
+                  </button>
+                  <button
+                    onClick={() => updateOption("fontStyle", "italic")}
+                    className={`border ${
+                      optionState.fontStyle === "italic" ? "bg-white/10" : ""
+                    } p-2 border-white/10 cursor-pointer rounded-lg hover:bg-white/5`}
+                  >
+                    <TbItalic />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
           {/* FIll */}
           <div className="flex px-5 items-center justify-between">
             <p>Fill</p>
