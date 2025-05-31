@@ -8,7 +8,6 @@ import { TbBallpen, TbLine } from "react-icons/tb";
 import gamutsLogo from "/gamuts_logo.svg";
 import AppController from "../../controllers/AppController";
 import { LuMousePointer2 } from "react-icons/lu";
-import useImage from "use-image";
 import { TOOL } from "../../libs";
 import OptionBar from "../OptionBar";
 // import { Circle, Rect, RegularPolygon } from "react-konva";
@@ -34,6 +33,50 @@ type ToolTypes = {
 
 function ToolRenderer(props: { tool: ToolTypes; isActive: boolean }) {
   const tool = props.tool;
+  const fileRef = useRef<HTMLInputElement>(null);
+  // const [image, setImage] = useState(null);
+  // console.log(tool);
+  if (tool.id === TOOL.IMAGE) {
+    function handleImagePicker(e: React.ChangeEvent<HTMLInputElement>) {
+      if (!e.target.files) {
+        return;
+      }
+      const reader = new FileReader();
+      reader.readAsDataURL(e.target.files[0]);
+      reader.onload = (event) => {
+        tool.action(event.target?.result);
+        // setImage(event.target?.result);
+      };
+      // setImage(e.target.files[0]);
+    }
+    return (
+      // <button
+      //   title={tool.name}
+      //   className={`text-xl pointer-events-none p-3 rounded-xl outline-none cursor-pointer ${
+      //     props.isActive ? "bg-green-700/10 text-green-400" : ""
+      //   } hover:bg-green-700/10 hover:text-green-400`}
+      //   // onClick={() => fileRef.current?.onchange()}
+      // >
+      <>
+        <label
+          className={`text-xl p-3 rounded-xl outline-none cursor-pointer ${
+            props.isActive ? "bg-green-700/10 text-green-400" : ""
+          } hover:bg-green-700/10 hover:text-green-400`}
+          htmlFor="fileInput"
+        >
+          {tool.icon}
+        </label>
+        <input
+          id="fileInput"
+          type="file"
+          ref={fileRef}
+          onChange={handleImagePicker}
+          className="opacity w-0 h-0"
+        ></input>
+      </>
+      // </button>
+    );
+  }
   return (
     <button
       title={tool.name}
@@ -49,10 +92,26 @@ function ToolRenderer(props: { tool: ToolTypes; isActive: boolean }) {
 
 function Toolbar() {
   const { state, dispatch } = useContext(AppController);
-  const [image] = useImage(gamutsLogo);
   const toolBarRef = useRef<HTMLDivElement>(null);
 
-  function CreateShapes(
+  async function getImage(
+    url: HTMLImageElement | string | null
+  ): Promise<HTMLImageElement | null> {
+    if (!url || typeof url !== "string") return null;
+    return new Promise((res) => {
+      const imageDiv = document.createElement("img");
+      imageDiv.src = url;
+      imageDiv.onload = function () {
+        console.log(imageDiv.width);
+        imageDiv
+          .decode()
+          .catch(() => {})
+          .finally(() => res(imageDiv));
+      };
+    });
+  }
+
+  async function CreateShapes(
     shapeName:
       | "Rect"
       | "Circle"
@@ -61,7 +120,8 @@ function Toolbar() {
       | "Text"
       | "Image"
       | "LINE"
-      | "DRAW"
+      | "DRAW",
+    image: HTMLImageElement | null | string = null
   ) {
     let shape;
     let structures = state.structures;
@@ -124,7 +184,6 @@ function Toolbar() {
           sides: 3,
           points: [0, 0, 100, 100],
           radius: 80,
-          image: image,
           fill: "white",
           stroke: "white",
           draggable: true,
@@ -134,12 +193,13 @@ function Toolbar() {
         updateActiveTool(TOOL.ARROW);
         break;
       case "Image":
+        image = await getImage(image);
         if (!image) break;
         shape = {
           x: 600,
           y: 600,
-          width: 200,
-          height: 200,
+          width: image.width,
+          height: image.height,
           radius: 80,
           image: image,
           fill: "transparent",
@@ -162,7 +222,6 @@ function Toolbar() {
           radius: 80,
           text: "Gamuts",
           fontSize: 48,
-          image: image,
           fill: "white",
           stroke: "white",
           draggable: true,
@@ -241,7 +300,7 @@ function Toolbar() {
       id: TOOL.IMAGE,
       name: "Image",
       icon: <IoImageOutline />,
-      action: () => CreateShapes("Image"),
+      action: (image: string) => CreateShapes("Image", image),
     },
     {
       id: TOOL.ERASER,

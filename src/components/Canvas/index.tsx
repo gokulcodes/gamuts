@@ -322,50 +322,54 @@ function Canvas() {
     });
   }
 
+  function handleContextMenu() {}
+
   return (
-    <TransformWrapper
-      minScale={1}
-      onTransformed={(event) => setZoomLevel(event.state.scale)}
-      panning={{ disabled: pan }}
-    >
-      {/* {optionsAnchor && <OptionBar optionsAnchor={optionsAnchor} />} */}
-      <Zoomer zoomLevel={zoomLevel} />
-      <TransformComponent>
-        <Stage
-          ref={canvasRef}
-          onClick={handleStageClick}
-          onTap={handleStageClick}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onTouchStart={handleMouseDown}
-          onTouchMove={handleMouseMove}
-          onTouchEnd={handleMouseUp}
-          width={window.innerWidth}
-          height={window.innerHeight}
-        >
-          <Layer ref={layerRef}>
-            {Renderer(state.structures)}
-            {lines.map((line, i) => (
-              <Line
-                key={state.structures.length + i}
-                points={line}
-                index={i}
-                ref={(node) => {
-                  if (node) {
-                    shapeRefs.current.set(state.structures.length + i, node);
-                  }
-                }}
-                stroke="#008140"
-                draggable
-                strokeWidth={3}
-                tension={0.2}
-                lineCap="round"
-                lineJoin="bevel"
-                // globalCompositeOperation={"source-over"}
-              />
-            ))}
-            {/* <Group draggable>
+    <div onDrop={(event) => event}>
+      <TransformWrapper
+        minScale={1}
+        onTransformed={(event) => setZoomLevel(event.state.scale)}
+        panning={{ disabled: pan }}
+      >
+        {/* {optionsAnchor && <OptionBar optionsAnchor={optionsAnchor} />} */}
+        <Zoomer zoomLevel={zoomLevel} />
+        <TransformComponent>
+          <Stage
+            ref={canvasRef}
+            onClick={handleStageClick}
+            onTap={handleStageClick}
+            onMouseDown={handleMouseDown}
+            onContextMenu={handleContextMenu}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onTouchStart={handleMouseDown}
+            onTouchMove={handleMouseMove}
+            onTouchEnd={handleMouseUp}
+            width={window.innerWidth}
+            height={window.innerHeight}
+          >
+            <Layer ref={layerRef}>
+              {Renderer(state.structures)}
+              {lines.map((line, i) => (
+                <Line
+                  key={state.structures.length + i}
+                  points={line}
+                  index={i}
+                  ref={(node) => {
+                    if (node) {
+                      shapeRefs.current.set(state.structures.length + i, node);
+                    }
+                  }}
+                  stroke="#008140"
+                  draggable
+                  strokeWidth={3}
+                  tension={0.2}
+                  lineCap="round"
+                  lineJoin="bevel"
+                  // globalCompositeOperation={"source-over"}
+                />
+              ))}
+              {/* <Group draggable>
               <Rect width={100} height={100} fill="black" />
               <Text
                 x={10}
@@ -376,39 +380,40 @@ function Canvas() {
                 fill="white"
               />
             </Group> */}
-            <Transformer
-              ref={trRef}
-              // padding={6}
-              centeredScaling={false}
-              rotationSnapTolerance={100}
-              rotateAnchorOffset={20}
-              rotateLineVisible={false}
-              anchorSize={6}
-              borderStroke="#008140"
-              anchorCornerRadius={6}
-              anchorFill="#05df72"
-              anchorStroke="#05df72"
-              // boundBoxFunc={(oldBox, newBox) => {
-              //   // // Limit resize
-              //   // if (newBox.width < 5 || newBox.height < 5) {
-              //   //   return oldBox;
-              //   // }
-              //   return newBox;
-              // }}
-              // anchorFill=""
-              // boundBoxFunc={(oldBox, newBox) => {
-              //   // limit resize
-              //   if (newBox.width > 200) {
-              //     return oldBox;
-              //   }
-              //   return newBox;
-              // }}
-            />
-          </Layer>
-          {/* <CircleGrid layerRef={layerRef} /> */}
-        </Stage>
-      </TransformComponent>
-    </TransformWrapper>
+              <Transformer
+                ref={trRef}
+                // padding={6}
+                centeredScaling={false}
+                rotationSnapTolerance={100}
+                rotateAnchorOffset={20}
+                rotateLineVisible={false}
+                anchorSize={6}
+                borderStroke="#008140"
+                anchorCornerRadius={6}
+                anchorFill="#05df72"
+                anchorStroke="#05df72"
+                // boundBoxFunc={(oldBox, newBox) => {
+                //   // // Limit resize
+                //   // if (newBox.width < 5 || newBox.height < 5) {
+                //   //   return oldBox;
+                //   // }
+                //   return newBox;
+                // }}
+                // anchorFill=""
+                // boundBoxFunc={(oldBox, newBox) => {
+                //   // limit resize
+                //   if (newBox.width > 200) {
+                //     return oldBox;
+                //   }
+                //   return newBox;
+                // }}
+              />
+            </Layer>
+            {/* <CircleGrid layerRef={layerRef} /> */}
+          </Stage>
+        </TransformComponent>
+      </TransformWrapper>
+    </div>
   );
 }
 
