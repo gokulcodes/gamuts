@@ -10,6 +10,7 @@ import AppController from "../../controllers/AppController";
 import { LuMousePointer2 } from "react-icons/lu";
 import { TOOL } from "../../libs";
 import OptionBar from "../OptionBar";
+import { CreateShapes } from "./utils";
 // import { Circle, Rect, RegularPolygon } from "react-konva";
 
 type ToolTypes = {
@@ -94,147 +95,11 @@ function Toolbar() {
   const { state, dispatch } = useContext(AppController);
   const toolBarRef = useRef<HTMLDivElement>(null);
 
-  async function getImage(
-    url: HTMLImageElement | string | null
-  ): Promise<HTMLImageElement | null> {
-    if (!url || typeof url !== "string") return null;
-    return new Promise((res) => {
-      const imageDiv = document.createElement("img");
-      imageDiv.src = url;
-      imageDiv.onload = function () {
-        console.log(imageDiv.width);
-        imageDiv
-          .decode()
-          .catch(() => {})
-          .finally(() => res(imageDiv));
-      };
-    });
-  }
-
-  async function CreateShapes(
-    shapeName:
-      | "Rect"
-      | "Circle"
-      | "Triangle"
-      | "Arrow"
-      | "Text"
-      | "Image"
-      | "LINE"
-      | "DRAW",
+  function callShapeGenerator(
+    shapeType: string,
     image: HTMLImageElement | null | string = null
   ) {
-    let shape;
-    let structures = state.structures;
-    switch (shapeName) {
-      case "Rect":
-        shape = {
-          x: 400,
-          y: 400,
-          width: 200,
-          height: 200,
-          sides: 0,
-          radius: 0,
-          fill: "white",
-          points: [],
-          stroke: "transparent",
-          draggable: true,
-          shapeName: "rect",
-        };
-        structures = [...structures, shape];
-        updateActiveTool(TOOL.RECT);
-        break;
-      case "Circle":
-        shape = {
-          x: 400,
-          y: 400,
-          width: 200,
-          height: 200,
-          sides: 0,
-          stroke: "transparent",
-          radius: 100,
-          fill: "white",
-          draggable: true,
-          shapeName: "circle",
-        };
-        structures = [...structures, shape];
-        updateActiveTool(TOOL.CIRCLE);
-        break;
-      case "Triangle":
-        shape = {
-          x: 600,
-          y: 600,
-          width: 200,
-          height: 200,
-          sides: 3,
-          radius: 80,
-          stroke: "transparent",
-          fill: "white",
-          draggable: true,
-          shapeName: "polygon",
-        };
-        structures = [...structures, shape];
-        updateActiveTool(TOOL.TRIANGLE);
-        break;
-      case "Arrow":
-        shape = {
-          x: 600,
-          y: 600,
-          width: 200,
-          height: 200,
-          sides: 3,
-          points: [0, 0, 100, 100],
-          radius: 80,
-          fill: "white",
-          stroke: "white",
-          draggable: true,
-          shapeName: "arrow",
-        };
-        structures = [...structures, shape];
-        updateActiveTool(TOOL.ARROW);
-        break;
-      case "Image":
-        image = await getImage(image);
-        if (!image) break;
-        shape = {
-          x: 600,
-          y: 600,
-          width: image.width,
-          height: image.height,
-          radius: 80,
-          image: image,
-          fill: "transparent",
-          sides: 4,
-          stroke: "transparent",
-          draggable: true,
-          shapeName: "image",
-        };
-        structures = [...structures, shape];
-        updateActiveTool(TOOL.IMAGE);
-        break;
-      case "Text":
-        shape = {
-          x: 600,
-          y: 600,
-          // width: 200,
-          // height: 200,
-          sides: 3,
-          points: [0, 0, 100, 100],
-          radius: 80,
-          text: "Gamuts",
-          fontSize: 48,
-          fill: "white",
-          stroke: "white",
-          draggable: true,
-          shapeName: "text",
-        };
-        structures = [...structures, shape];
-        updateActiveTool(TOOL.TEXT);
-        break;
-    }
-    dispatch({
-      type: "mutateStructures",
-      payload: { ...state, structures: structures },
-    });
+    CreateShapes(shapeType, dispatch, state, image);
   }
 
   function updateActiveTool(tool: string) {
@@ -254,19 +119,19 @@ function Toolbar() {
       id: TOOL.RECT,
       name: "Rectangle",
       icon: <BiRectangle />,
-      action: () => CreateShapes("Rect"),
+      action: () => callShapeGenerator("Rect"),
     },
     {
       id: TOOL.CIRCLE,
       name: "Circle",
       icon: <BiCircle />,
-      action: () => CreateShapes("Circle"),
+      action: () => callShapeGenerator("Circle"),
     },
     {
       id: TOOL.TRIANGLE,
       name: "Triangle",
       icon: <IoTriangleOutline />,
-      action: () => CreateShapes("Triangle"),
+      action: () => callShapeGenerator("Triangle"),
     },
     {
       id: TOOL.LINE,
@@ -280,13 +145,13 @@ function Toolbar() {
       id: TOOL.ARROW,
       name: "Arrow",
       icon: <HiOutlineArrowUpRight />,
-      action: () => CreateShapes("Arrow"),
+      action: () => callShapeGenerator("Arrow"),
     },
     {
       id: TOOL.TEXT,
       name: "Text",
       icon: <CiText />,
-      action: () => CreateShapes("Text"),
+      action: () => callShapeGenerator("Text"),
     },
     {
       id: TOOL.DRAW,
@@ -300,7 +165,7 @@ function Toolbar() {
       id: TOOL.IMAGE,
       name: "Image",
       icon: <IoImageOutline />,
-      action: (image: string) => CreateShapes("Image", image),
+      action: (image: string) => callShapeGenerator("Image", image),
     },
     {
       id: TOOL.ERASER,
@@ -313,35 +178,37 @@ function Toolbar() {
   ];
 
   return (
-    <div className="absolute z-50 left-0 bottom-5 w-full pointer-events-none  transition-all ">
-      <aside className="gap-4 flex flex-col w-full  items-center pointer-events-auto justify-center relative top-1/4">
-        <OptionBar toolBarRef={toolBarRef.current} />
-        <div
-          ref={toolBarRef}
-          className="flex flex-row z-0 backdrop-blur-2xl gap-1 shadow-2xl animate-toolbarOpen items-center justify-center border border-white/10 bg-foreground/60 p-2 rounded-2xl"
-        >
-          {Tools.map((tool) => (
-            <ToolRenderer
-              key={tool.id}
-              isActive={state.activeTool === tool.id}
-              tool={tool}
-            />
-          ))}
+    <>
+      <OptionBar toolBarRef={toolBarRef.current} />
+      <div className="absolute z-50 left-0 bottom-5 w-full transition-all ">
+        <aside className="gap-4 flex flex-col w-full items-center justify-center relative top-1/4">
+          <div
+            ref={toolBarRef}
+            className="flex flex-row z-0 backdrop-blur-2xl gap-1 shadow-2xl animate-toolbarOpen items-center justify-center border border-white/10 bg-foreground/60 p-2 rounded-2xl"
+          >
+            {Tools.map((tool) => (
+              <ToolRenderer
+                key={tool.id}
+                isActive={state.activeTool === tool.id}
+                tool={tool}
+              />
+            ))}
+          </div>
+        </aside>
+        <div className="absolute flex items-center gap-4 pointer-events-auto z-50 right-5 bottom-0">
+          <a
+            href="https://github.com/gokulcodes/gamuts"
+            target="_blank"
+            className="logo text-lg p-4 bg-foreground/40 backdrop-blur-2xl border border-white/10 rounded-xl"
+          >
+            <BsGithub />
+          </a>
+          <a href="/">
+            <img src={gamutsLogo} className="logo" alt="Vite logo" />
+          </a>
         </div>
-      </aside>
-      <div className="absolute flex items-center gap-4 pointer-events-auto z-50 right-5 bottom-0">
-        <a
-          href="https://github.com/gokulcodes/gamuts"
-          target="_blank"
-          className="logo text-lg p-4 bg-foreground/40 backdrop-blur-2xl border border-white/10 rounded-xl"
-        >
-          <BsGithub />
-        </a>
-        <a href="/">
-          <img src={gamutsLogo} className="logo" alt="Vite logo" />
-        </a>
       </div>
-    </div>
+    </>
   );
 }
 

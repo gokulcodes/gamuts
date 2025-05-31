@@ -1,4 +1,4 @@
-import React, {
+import {
   useCallback,
   useContext,
   useEffect,
@@ -19,14 +19,13 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
   const filterAdd = useRef<Set<Filter>>(new Set());
   const { toolBarRef } = props;
   const [optionState, dispatcher] = useReducer(reducer, initialOptionState);
-  const topGradientRef = useRef<HTMLDivElement>(null);
-  const bottomGradientRef = useRef<HTMLDivElement>(null);
-  const previousScrollTop = useRef<number>(0);
+  // const topGradientRef = useRef<HTMLDivElement>(null);
+  // const bottomGradientRef = useRef<HTMLDivElement>(null);
+  // const previousScrollTop = useRef<number>(0);
   const optionRef = useRef<HTMLDivElement>(null);
 
   const updateShapeStyle = useCallback(() => {
     const allStruct = structures;
-    console.log(allStruct, selectedShapes);
     for (const index of selectedShapes) {
       if (allStruct.length <= index) return;
       allStruct[index].fill = optionState.fill;
@@ -369,47 +368,47 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
     }
   }
 
-  function handleGradientVisibility(
-    event: React.UIEvent<HTMLDivElement, UIEvent>
-  ) {
-    if (!bottomGradientRef.current || !topGradientRef.current) {
-      return;
-    }
-    const target = event.target as HTMLDivElement;
-    if (target.clientHeight >= target.scrollHeight) {
-      bottomGradientRef.current.style.opacity = "0";
-      topGradientRef.current.style.opacity = "0";
-      return;
-    }
-    const currentScrollTop = target.scrollTop;
-    if (currentScrollTop > previousScrollTop.current) {
-      bottomGradientRef.current.style.opacity = "0";
-      topGradientRef.current.style.opacity = "1";
-    } else if (currentScrollTop < previousScrollTop.current) {
-      bottomGradientRef.current.style.opacity = "1";
-      topGradientRef.current.style.opacity = "0";
-    }
+  // function handleGradientVisibility(
+  //   event: React.UIEvent<HTMLDivElement, UIEvent>
+  // ) {
+  //   if (!bottomGradientRef.current || !topGradientRef.current) {
+  //     return;
+  //   }
+  //   const target = event.target as HTMLDivElement;
+  //   if (target.clientHeight >= target.scrollHeight) {
+  //     bottomGradientRef.current.style.opacity = "0";
+  //     topGradientRef.current.style.opacity = "0";
+  //     return;
+  //   }
+  //   const currentScrollTop = target.scrollTop;
+  //   if (currentScrollTop > previousScrollTop.current) {
+  //     bottomGradientRef.current.style.opacity = "0";
+  //     topGradientRef.current.style.opacity = "1";
+  //   } else if (currentScrollTop < previousScrollTop.current) {
+  //     bottomGradientRef.current.style.opacity = "1";
+  //     topGradientRef.current.style.opacity = "0";
+  //   }
 
-    previousScrollTop.current = currentScrollTop;
-  }
+  //   previousScrollTop.current = currentScrollTop;
+  // }
 
-  useEffect(() => {
-    // if (
-    //   !bottomGradientRef.current ||
-    //   !topGradientRef.current ||
-    //   !optionRef.current
-    // ) {
-    //   return;
-    // }
-    // const canvas = optionRef.current;
-    // if (canvas.clientHeight > canvas.scrollHeight) {
-    //   topGradientRef.current.style.opacity = "1";
-    //   bottomGradientRef.current.style.opacity = "0";
-    //   return;
-    // }
-    // canvas.addEventListener("scroll", handleGradientVisibility);
-    // return () => canvas.removeEventListener("scroll", handleGradientVisibility);
-  }, [bottomGradientRef, topGradientRef, optionRef]);
+  // useEffect(() => {
+  //   // if (
+  //   //   !bottomGradientRef.current ||
+  //   //   !topGradientRef.current ||
+  //   //   !optionRef.current
+  //   // ) {
+  //   //   return;
+  //   // }
+  //   // const canvas = optionRef.current;
+  //   // if (canvas.clientHeight > canvas.scrollHeight) {
+  //   //   topGradientRef.current.style.opacity = "1";
+  //   //   bottomGradientRef.current.style.opacity = "0";
+  //   //   return;
+  //   // }
+  //   // canvas.addEventListener("scroll", handleGradientVisibility);
+  //   // return () => canvas.removeEventListener("scroll", handleGradientVisibility);
+  // }, [bottomGradientRef, topGradientRef, optionRef]);
 
   if (!selectedShapes.length || !toolBarRef) {
     return;
@@ -421,15 +420,15 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
     <div
       id="optionbar"
       ref={optionRef}
-      onScroll={handleGradientVisibility}
+      // onScroll={handleGradientVisibility}
       style={{
         width: width,
-        height: 500,
+        // height: 500,
         // top: `${optionsAnchor.y - 40}px`,
         // left: `${optionsAnchor.x}px`,
         // width: `${optionsAnchor.width + optionsAnchor.width}px`,
       }}
-      className="shadow-2xl overflow-auto relative select-none h-full max-w-md w-md border z-10 border-white/10 rounded-2xl animate-optionOpen bg-foreground/80 backdrop-blur-2xl"
+      className="pointer-events-auto cursor-crosshair overflow-auto absolute select-none right-0 h-full max-w-md w-md border z-10 border-white/10 animate-optionOpen bg-foreground/80 backdrop-blur-2xl"
     >
       <div className="w-full bg-foreground sticky top-0 left-0 p-2 z-50 ">
         <div className="w-full mb-3 flex justify-between border border-white/10 rounded-xl">
@@ -451,12 +450,12 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
           </button>
         </div>
       </div>
-      <div
+      {/* <div
         ref={topGradientRef}
         className="h-30 pointer-events-none w-full bg-gradient-to-b z-50 from-foreground to-transparent sticky top-18 animate-opacity"
-      />
+      /> */}
       {activeTab === 0 ? (
-        <div className="flex animate-openUp relative -top-28 flex-col gap-4">
+        <div className="flex animate-openUp relative  flex-col gap-4">
           {/* FIll */}
           <div className="flex px-8 items-center justify-between">
             <p>Fill</p>
@@ -688,7 +687,7 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
           </div>
         </div>
       ) : (
-        <div className="flex animate-openUp relative -top-28 flex-col gap-4">
+        <div className="flex animate-openUp relative  flex-col gap-4">
           <div className="flex flex-wrap w-full">
             <div className="flex px-8 flex-row items-start gap-4 w-1/2 justify-between">
               <p>Blur</p>
@@ -922,10 +921,10 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
           </div>
         </div>
       )}
-      <div
+      {/* <div
         ref={bottomGradientRef}
         className="h-30 pointer-events-none w-full bg-gradient-to-t from-foreground to-transparent sticky bottom-0 animate-opacity"
-      />
+      /> */}
     </div>
   );
 }

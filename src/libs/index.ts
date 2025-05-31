@@ -14,11 +14,11 @@ export const TOOL = {
 };
 
 export type Shape = {
-  x: number;
-  y: number;
+  x?: number;
+  y?: number;
   width?: number;
-  sides: number;
-  radius: number;
+  sides?: number;
+  radius?: number;
   height?: number;
   text?: string;
   fontSize?: number;
@@ -26,7 +26,7 @@ export type Shape = {
   stroke: string;
   image?: HTMLImageElement;
   opacity?: number;
-  fill: string;
+  fill?: string;
   shadowBlur?: number;
   shadowOpacity?: number;
   shadowColor?: string;
@@ -50,7 +50,7 @@ export type Shape = {
   noise?: number;
   cornerRadius?: number;
   strokeWidth?: number;
-  draggable: boolean;
+  draggable?: boolean;
   shapeName: string;
   dash?: Array<number>;
 };

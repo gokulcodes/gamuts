@@ -8,7 +8,7 @@ export const initialState = {
   activeTool: TOOL.SELECT,
 };
 
-type State = {
+export type State = {
   toolbarVisible: boolean;
   structures: Array<Shape>;
   selectedShapes: Array<number>;

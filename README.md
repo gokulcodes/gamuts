@@ -118,7 +118,7 @@ Optimization:
 
 ### TODO:
 
-- Create shapes using drag
+- Create shapes using drag - Done
 - Import images using drop - Done
 - Insert text view
 - Insert text inside rect, circle, triangle, shape

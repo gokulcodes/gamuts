@@ -8,11 +8,11 @@ import {
   Transformer,
   Rect,
   Circle,
-  Text,
   RegularPolygon,
   Line,
   Arrow,
   Image,
+  Group,
   // Group,
 } from "react-konva";
 import Zoomer from "../Zoomer";
@@ -20,13 +20,17 @@ import AppController from "../../controllers/AppController";
 import { TOOL } from "../../libs";
 import type { Shape } from "../../libs";
 import gamutsLogo from "/gamuts_logo.svg";
+import TextCustom from "./Text";
+// import { CreateShapes } from "../Toolbar/utils";
 // import CircleGrid from "./Circle";
 // import OptionBar from "../OptionBar";
 
 function Canvas() {
   const canvasRef = useRef<Konva.Stage>(null);
   const layerRef = useRef<Konva.Layer>(null);
+  const [drawingShape, setDrawingShape] = useState<Shape | null>();
   const [zoomLevel, setZoomLevel] = useState(0);
+  const [radius, setRadius] = useState(0);
   const trRef = useRef<Konva.Transformer>(null);
   // const [optionsAnchor, setOptionsAnchor] = useState(null);
   const [pan, setPan] = useState(true);
@@ -40,9 +44,9 @@ function Canvas() {
     if (!canvasRef.current) {
       return;
     }
-
+    console.log(radius);
     function handlePan(event: KeyboardEvent) {
-      if (event.code == "Space" && canvasRef.current) {
+      if (event.code === "Space" && canvasRef.current) {
         canvasRef.current.content.style.cursor = "grab";
         setPan(false);
       }
@@ -81,26 +85,131 @@ function Canvas() {
       canvasRef.current.content.style.cursor = gamutsLogo;
       console.log(state.activeTool, canvasRef.current.content.style.cursor);
     }
+    if (
+      state.activeTool === TOOL.RECT ||
+      state.activeTool === TOOL.CIRCLE ||
+      state.activeTool === TOOL.TRIANGLE ||
+      state.activeTool === TOOL.ARROW
+    ) {
+      canvasRef.current.content.style.cursor = "crosshair";
+      // console.log(state.activeTool, canvasRef.current.content.style.cursor);
+    }
+    if (state.activeTool === TOOL.TEXT) {
+      canvasRef.current.content.style.cursor = "text";
+      // console.log(state.activeTool, canvasRef.current.content.style.cursor);
+    }
   }, [state.activeTool]);
 
   function handleMouseDown(
     event: Konva.KonvaEventObject<MouseEvent | TouchEvent>
   ) {
-    if (
-      !canvasRef.current ||
-      state.selectedShapes.length ||
-      (state.activeTool !== TOOL.LINE && state.activeTool !== TOOL.DRAW)
-    ) {
+    if (!canvasRef.current || state.selectedShapes.length) {
       return;
     }
     isDrawing.current = true;
-    canvasRef.current.content.style.cursor = "pointer";
+    // canvasRef.current.content.style.cursor = "pointer";
     const stage = event.target.getStage();
     if (!stage) {
       return;
     }
     const points = stage.getPointerPosition();
     if (!points) {
+      return;
+    }
+
+    if (state.activeTool === TOOL.RECT) {
+      setDrawingShape({
+        x: points.x,
+        y: points.y,
+        width: 0,
+        height: 0,
+        sides: 0,
+        radius: 0,
+        fill: "white",
+        points: [],
+        stroke: "transparent",
+        draggable: true,
+        shapeName: "rect",
+      });
+      // let shapeConfig = {
+      //   x
+      // }
+      // CreateShapes("Rect", dispatch, state, shapeConfig);
+      return;
+    }
+
+    if (state.activeTool === TOOL.CIRCLE) {
+      setDrawingShape({
+        x: points.x,
+        y: points.y,
+        width: 0,
+        height: 0,
+        sides: 0,
+        stroke: "transparent",
+        radius: 0,
+        fill: "white",
+        draggable: true,
+        shapeName: "circle",
+      });
+      return;
+    }
+
+    if (state.activeTool === TOOL.TRIANGLE) {
+      setDrawingShape({
+        x: points.x,
+        y: points.y,
+        width: 0,
+        height: 0,
+        sides: 3,
+        radius: 0,
+        stroke: "transparent",
+        fill: "white",
+        draggable: true,
+        shapeName: "polygon",
+      });
+      return;
+    }
+
+    if (state.activeTool === TOOL.TEXT) {
+      setDrawingShape({
+        x: points.x,
+        y: points.y,
+        // width: 200,
+        // height: 200,
+        sides: 3,
+        points: [0, 0, 100, 100],
+        radius: 80,
+        // text: "Gamuts",
+        fontSize: 48,
+        fill: "white",
+        stroke: "transparent",
+        draggable: true,
+        shapeName: "text",
+      });
+      return;
+    }
+
+    if (state.activeTool === TOOL.ARROW) {
+      if (!drawingShape) {
+        setDrawingShape({
+          x: 0,
+          y: 0,
+          width: 0,
+          height: 0,
+          sides: 0,
+          points: [points.x, points.y],
+          radius: 0,
+          fill: "white",
+          stroke: "white",
+          draggable: true,
+          shapeName: "arrow",
+        });
+        return;
+      }
+      const preShape = drawingShape;
+      if (preShape.points)
+        preShape.points = [...preShape.points, points.x, points.y];
+      setDrawingShape(preShape);
       return;
     }
 
@@ -147,6 +256,40 @@ function Canvas() {
       return;
     }
 
+    if (drawingShape) {
+      if (state.activeTool === TOOL.RECT) {
+        const prevRect = drawingShape;
+        if (prevRect.x && prevRect.y) {
+          prevRect.width = point.x - prevRect.x;
+          prevRect.height = point.y - prevRect.y;
+          setRadius(prevRect.height);
+        }
+        setDrawingShape(prevRect);
+        return;
+      }
+
+      if (
+        state.activeTool === TOOL.CIRCLE ||
+        state.activeTool === TOOL.TRIANGLE
+      ) {
+        const prevRect = drawingShape;
+        if (prevRect.y) {
+          prevRect.radius = point.y - prevRect.y;
+          setRadius(prevRect.radius);
+        }
+        setDrawingShape(prevRect);
+        return;
+      }
+
+      if (state.activeTool === TOOL.ARROW) {
+        // const prevRect = drawingShape;
+        // prevRect.points.push(point.x);
+        // prevRect.points.push(point.y);
+        // setDrawingShape(prevRect);
+        return;
+      }
+    }
+
     let lastLine = lines[lines.length - 1];
     lastLine = lastLine.concat([point.x, point.y]);
 
@@ -159,6 +302,25 @@ function Canvas() {
       return;
     }
     isDrawing.current = false;
+    canvasRef.current.content.style.cursor = "default";
+
+    if (drawingShape) {
+      dispatch({
+        type: "mutateStructures",
+        payload: { ...state, structures: [...state.structures, drawingShape] },
+      });
+      if (state.activeTool === TOOL.ARROW) {
+        return;
+      }
+      setDrawingShape(null);
+      dispatch({
+        type: "updateSelectedShapes",
+        payload: {
+          ...state,
+          selectedShapes: [0],
+        },
+      });
+    }
     // canvasRef.current.content.style.cursor = "default";
   }
 
@@ -231,19 +393,23 @@ function Canvas() {
     }
   }
 
-  function Renderer(shapes: Array<Shape>) {
-    return shapes.map((struct, index) => {
+  function Renderer(shapes: Array<Shape | undefined | null>) {
+    // console.log(shapes);
+    return shapes?.map((struct, index) => {
+      if (!struct?.shapeName) return;
       if (struct.shapeName === "rect") {
         return (
-          // @ts-expect-error
-          <Rect
-            ref={(node) => {
-              if (node) {
-                shapeRefs.current.set(index, node);
-              }
-            }}
-            {...struct}
-          />
+          <Group onDblClick={(e) => console.log(e)}>
+            {/* @ts-expect-error */}
+            <Rect
+              ref={(node) => {
+                if (node) {
+                  shapeRefs.current.set(index, node);
+                }
+              }}
+              {...struct}
+            />
+          </Group>
         );
       } else if (struct.shapeName === "circle") {
         return (
@@ -303,19 +469,18 @@ function Canvas() {
         );
       } else if (struct.shapeName === "text") {
         return (
-          // @ts-expect-error
-          <Text
-            ref={(node) => {
+          <TextCustom
+            updateRef={(node: Konva.Node) => {
               if (node) {
                 shapeRefs.current.set(index, node);
               }
             }}
-            // cornerRadius={20}
-            // crop={{
-            //   width: 100,
-            //   height: 100,
+            // ref={(node) => {
+            //   if (node) {
+            //     shapeRefs.current.set(index, node);
+            //   }
             // }}
-            {...struct}
+            struct={struct}
           />
         );
       }
@@ -325,51 +490,51 @@ function Canvas() {
   function handleContextMenu() {}
 
   return (
-    <div onDrop={(event) => event}>
-      <TransformWrapper
-        minScale={1}
-        onTransformed={(event) => setZoomLevel(event.state.scale)}
-        panning={{ disabled: pan }}
-      >
-        {/* {optionsAnchor && <OptionBar optionsAnchor={optionsAnchor} />} */}
-        <Zoomer zoomLevel={zoomLevel} />
-        <TransformComponent>
-          <Stage
-            ref={canvasRef}
-            onClick={handleStageClick}
-            onTap={handleStageClick}
-            onMouseDown={handleMouseDown}
-            onContextMenu={handleContextMenu}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onTouchStart={handleMouseDown}
-            onTouchMove={handleMouseMove}
-            onTouchEnd={handleMouseUp}
-            width={window.innerWidth}
-            height={window.innerHeight}
-          >
-            <Layer ref={layerRef}>
-              {Renderer(state.structures)}
-              {lines.map((line, i) => (
-                <Line
-                  key={state.structures.length + i}
-                  points={line}
-                  index={i}
-                  ref={(node) => {
-                    if (node) {
-                      shapeRefs.current.set(state.structures.length + i, node);
-                    }
-                  }}
-                  stroke="#008140"
-                  draggable
-                  strokeWidth={3}
-                  tension={0.2}
-                  lineCap="round"
-                  lineJoin="bevel"
-                  // globalCompositeOperation={"source-over"}
-                />
-              ))}
-              {/* <Group draggable>
+    <TransformWrapper
+      minScale={1}
+      doubleClick={{ disabled: true }}
+      onTransformed={(event) => setZoomLevel(event.state.scale)}
+      panning={{ disabled: pan }}
+    >
+      {/* {optionsAnchor && <OptionBar optionsAnchor={optionsAnchor} />} */}
+      <Zoomer zoomLevel={zoomLevel} />
+      <TransformComponent>
+        <Stage
+          ref={canvasRef}
+          onClick={handleStageClick}
+          onTap={handleStageClick}
+          onMouseDown={handleMouseDown}
+          onContextMenu={handleContextMenu}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onTouchStart={handleMouseDown}
+          onTouchMove={handleMouseMove}
+          onTouchEnd={handleMouseUp}
+          width={window.innerWidth}
+          height={window.innerHeight}
+        >
+          <Layer ref={layerRef}>
+            {Renderer([...state.structures, drawingShape])}
+            {lines.map((line, i) => (
+              <Line
+                key={state.structures.length + i}
+                points={line}
+                index={i}
+                ref={(node) => {
+                  if (node) {
+                    shapeRefs.current.set(state.structures.length + i, node);
+                  }
+                }}
+                stroke="white"
+                draggable
+                strokeWidth={2}
+                tension={0.2}
+                lineCap="round"
+                lineJoin="bevel"
+                // globalCompositeOperation={"source-over"}
+              />
+            ))}
+            {/* <Group draggable>
               <Rect width={100} height={100} fill="black" />
               <Text
                 x={10}
@@ -380,40 +545,40 @@ function Canvas() {
                 fill="white"
               />
             </Group> */}
-              <Transformer
-                ref={trRef}
-                // padding={6}
-                centeredScaling={false}
-                rotationSnapTolerance={100}
-                rotateAnchorOffset={20}
-                rotateLineVisible={false}
-                anchorSize={6}
-                borderStroke="#008140"
-                anchorCornerRadius={6}
-                anchorFill="#05df72"
-                anchorStroke="#05df72"
-                // boundBoxFunc={(oldBox, newBox) => {
-                //   // // Limit resize
-                //   // if (newBox.width < 5 || newBox.height < 5) {
-                //   //   return oldBox;
-                //   // }
-                //   return newBox;
-                // }}
-                // anchorFill=""
-                // boundBoxFunc={(oldBox, newBox) => {
-                //   // limit resize
-                //   if (newBox.width > 200) {
-                //     return oldBox;
-                //   }
-                //   return newBox;
-                // }}
-              />
-            </Layer>
-            {/* <CircleGrid layerRef={layerRef} /> */}
-          </Stage>
-        </TransformComponent>
-      </TransformWrapper>
-    </div>
+            {/* <TextCustom /> */}
+            <Transformer
+              ref={trRef}
+              // padding={6}
+              centeredScaling={false}
+              rotationSnapTolerance={100}
+              rotateAnchorOffset={20}
+              rotateLineVisible={false}
+              anchorSize={6}
+              borderStroke="#008140"
+              anchorCornerRadius={6}
+              anchorFill="#05df72"
+              anchorStroke="#05df72"
+              // boundBoxFunc={(oldBox, newBox) => {
+              //   // // Limit resize
+              //   // if (newBox.width < 5 || newBox.height < 5) {
+              //   //   return oldBox;
+              //   // }
+              //   return newBox;
+              // }}
+              // anchorFill=""
+              // boundBoxFunc={(oldBox, newBox) => {
+              //   // limit resize
+              //   if (newBox.width > 200) {
+              //     return oldBox;
+              //   }
+              //   return newBox;
+              // }}
+            />
+          </Layer>
+          {/* <CircleGrid layerRef={layerRef} /> */}
+        </Stage>
+      </TransformComponent>
+    </TransformWrapper>
   );
 }
 
