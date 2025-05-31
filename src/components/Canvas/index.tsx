@@ -13,32 +13,27 @@ import {
   Arrow,
   Image,
   Group,
-  // Group,
 } from "react-konva";
 import Zoomer from "../Zoomer";
 import AppController from "../../controllers/AppController";
 import { TOOL } from "../../libs";
 import type { Shape } from "../../libs";
-import gamutsLogo from "/gamuts_logo.svg";
 import TextCustom from "./Text";
-// import { CreateShapes } from "../Toolbar/utils";
-// import CircleGrid from "./Circle";
-// import OptionBar from "../OptionBar";
+import OptionBar from "../OptionBar";
 
 function Canvas() {
-  const canvasRef = useRef<Konva.Stage>(null);
-  const layerRef = useRef<Konva.Layer>(null);
+  const { state, dispatch } = useContext(AppController);
   const [drawingShape, setDrawingShape] = useState<Shape | null>();
+  const [lines, setLines] = useState<Array<number[]>>([]);
   const [zoomLevel, setZoomLevel] = useState(0);
   const [radius, setRadius] = useState(0);
-  const trRef = useRef<Konva.Transformer>(null);
-  // const [optionsAnchor, setOptionsAnchor] = useState(null);
   const [pan, setPan] = useState(true);
-  const { state, dispatch } = useContext(AppController);
+
+  const canvasRef = useRef<Konva.Stage>(null);
+  const layerRef = useRef<Konva.Layer>(null);
+  const trRef = useRef<Konva.Transformer>(null);
   const shapeRefs = useRef(new Map());
-  // const [selectedIds, setSelectedIds] = useState<Array<number>>([]);
   const isDrawing = useRef(false);
-  const [lines, setLines] = useState<Array<number[]>>([]);
 
   useEffect(() => {
     if (!canvasRef.current) {
@@ -52,7 +47,6 @@ function Canvas() {
       }
     }
     function handlePanUp() {
-      // if (canvasRef.current) canvasRef.current.content.style.cursor = "default";
       setPan(true);
     }
     window.addEventListener("keydown", handlePan);
@@ -61,7 +55,7 @@ function Canvas() {
       window.removeEventListener("keydown", handlePan);
       window.removeEventListener("keyup", handlePanUp);
     };
-  }, [canvasRef]);
+  }, [canvasRef, radius]);
 
   useEffect(() => {
     // shape selections
@@ -82,7 +76,6 @@ function Canvas() {
       return;
     }
     if (state.activeTool === TOOL.ERASER) {
-      canvasRef.current.content.style.cursor = gamutsLogo;
       console.log(state.activeTool, canvasRef.current.content.style.cursor);
     }
     if (
@@ -92,11 +85,9 @@ function Canvas() {
       state.activeTool === TOOL.ARROW
     ) {
       canvasRef.current.content.style.cursor = "crosshair";
-      // console.log(state.activeTool, canvasRef.current.content.style.cursor);
     }
     if (state.activeTool === TOOL.TEXT) {
       canvasRef.current.content.style.cursor = "text";
-      // console.log(state.activeTool, canvasRef.current.content.style.cursor);
     }
   }, [state.activeTool]);
 
@@ -107,7 +98,11 @@ function Canvas() {
       return;
     }
     isDrawing.current = true;
-    // canvasRef.current.content.style.cursor = "pointer";
+
+    if (state.activeTool === TOOL.SELECT) {
+      return;
+    }
+
     const stage = event.target.getStage();
     if (!stage) {
       return;
@@ -394,12 +389,11 @@ function Canvas() {
   }
 
   function Renderer(shapes: Array<Shape | undefined | null>) {
-    // console.log(shapes);
     return shapes?.map((struct, index) => {
       if (!struct?.shapeName) return;
       if (struct.shapeName === "rect") {
         return (
-          <Group onDblClick={(e) => console.log(e)}>
+          <Group key={index} onDblClick={(e) => console.log(e)}>
             {/* @ts-expect-error */}
             <Rect
               ref={(node) => {
@@ -415,6 +409,7 @@ function Canvas() {
         return (
           // @ts-expect-error
           <Circle
+            key={index}
             ref={(node) => {
               if (node) {
                 shapeRefs.current.set(index, node);
@@ -427,6 +422,7 @@ function Canvas() {
         return (
           // @ts-expect-error
           <RegularPolygon
+            key={index}
             ref={(node) => {
               if (node) {
                 shapeRefs.current.set(index, node);
@@ -439,6 +435,7 @@ function Canvas() {
         return (
           // @ts-expect-error
           <Arrow
+            key={index}
             ref={(node) => {
               if (node) {
                 shapeRefs.current.set(index, node);
@@ -452,6 +449,7 @@ function Canvas() {
         return (
           // @ts-expect-error
           <Image
+            key={index}
             ref={(node) => {
               if (node) {
                 node.cache();
@@ -470,16 +468,12 @@ function Canvas() {
       } else if (struct.shapeName === "text") {
         return (
           <TextCustom
+            key={index}
             updateRef={(node: Konva.Node) => {
               if (node) {
                 shapeRefs.current.set(index, node);
               }
             }}
-            // ref={(node) => {
-            //   if (node) {
-            //     shapeRefs.current.set(index, node);
-            //   }
-            // }}
             struct={struct}
           />
         );
@@ -496,8 +490,8 @@ function Canvas() {
       onTransformed={(event) => setZoomLevel(event.state.scale)}
       panning={{ disabled: pan }}
     >
-      {/* {optionsAnchor && <OptionBar optionsAnchor={optionsAnchor} />} */}
       <Zoomer zoomLevel={zoomLevel} />
+      <OptionBar canvasRef={canvasRef.current} />
       <TransformComponent>
         <Stage
           ref={canvasRef}
@@ -531,24 +525,10 @@ function Canvas() {
                 tension={0.2}
                 lineCap="round"
                 lineJoin="bevel"
-                // globalCompositeOperation={"source-over"}
               />
             ))}
-            {/* <Group draggable>
-              <Rect width={100} height={100} fill="black" />
-              <Text
-                x={10}
-                y={50 - 18 / 2}
-                fontSize={18}
-                align="center"
-                text="Rectange"
-                fill="white"
-              />
-            </Group> */}
-            {/* <TextCustom /> */}
             <Transformer
               ref={trRef}
-              // padding={6}
               centeredScaling={false}
               rotationSnapTolerance={100}
               rotateAnchorOffset={20}
@@ -558,21 +538,6 @@ function Canvas() {
               anchorCornerRadius={6}
               anchorFill="#05df72"
               anchorStroke="#05df72"
-              // boundBoxFunc={(oldBox, newBox) => {
-              //   // // Limit resize
-              //   // if (newBox.width < 5 || newBox.height < 5) {
-              //   //   return oldBox;
-              //   // }
-              //   return newBox;
-              // }}
-              // anchorFill=""
-              // boundBoxFunc={(oldBox, newBox) => {
-              //   // limit resize
-              //   if (newBox.width > 200) {
-              //     return oldBox;
-              //   }
-              //   return newBox;
-              // }}
             />
           </Layer>
           {/* <CircleGrid layerRef={layerRef} /> */}

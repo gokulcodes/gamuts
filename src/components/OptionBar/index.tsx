@@ -11,17 +11,21 @@ import { reducer, initialOptionState } from "./optionReducer";
 import Konva from "konva";
 import type { Filter } from "konva/lib/Node";
 import { TbJoinBevel, TbJoinRound, TbJoinStraight } from "react-icons/tb";
+import { RiEditCircleLine, RiExportLine } from "react-icons/ri";
+import { IoColorFilterOutline } from "react-icons/io5";
 
-function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
+function OptionBar(props: { canvasRef: Konva.Stage | null }) {
+  const { canvasRef } = props;
   const { state, dispatch } = useContext(AppController);
   const [activeTab, setActiveTab] = useState(0);
+  // const [canvasColor, setCanvasColor] = useState("");
   const { structures, selectedShapes } = state;
   const filterAdd = useRef<Set<Filter>>(new Set());
-  const { toolBarRef } = props;
   const [optionState, dispatcher] = useReducer(reducer, initialOptionState);
-  // const topGradientRef = useRef<HTMLDivElement>(null);
-  // const bottomGradientRef = useRef<HTMLDivElement>(null);
-  // const previousScrollTop = useRef<number>(0);
+  const topGradientRef = useRef<HTMLDivElement>(null);
+  const bottomGradientRef = useRef<HTMLDivElement>(null);
+  const previousScrollTop = useRef<number>(0);
+  const [exportType, setExportType] = useState("jpeg");
   const optionRef = useRef<HTMLDivElement>(null);
 
   const updateShapeStyle = useCallback(() => {
@@ -68,7 +72,7 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
 
   useEffect(() => {
     updateShapeStyle();
-  }, [optionState]);
+  }, [optionState, updateShapeStyle]);
 
   function updateOption(optionName: string, value: string) {
     switch (optionName) {
@@ -106,7 +110,16 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
         });
         break;
       case "borderStyle":
-        if (value === "solid") return;
+        if (value === "solid") {
+          dispatcher({
+            type: "borderStyle",
+            payload: {
+              ...optionState,
+              borderStyle: [],
+            },
+          });
+          return;
+        }
         dispatcher({
           type: "borderStyle",
           payload: {
@@ -368,96 +381,85 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
     }
   }
 
-  // function handleGradientVisibility(
-  //   event: React.UIEvent<HTMLDivElement, UIEvent>
-  // ) {
-  //   if (!bottomGradientRef.current || !topGradientRef.current) {
-  //     return;
-  //   }
-  //   const target = event.target as HTMLDivElement;
-  //   if (target.clientHeight >= target.scrollHeight) {
-  //     bottomGradientRef.current.style.opacity = "0";
-  //     topGradientRef.current.style.opacity = "0";
-  //     return;
-  //   }
-  //   const currentScrollTop = target.scrollTop;
-  //   if (currentScrollTop > previousScrollTop.current) {
-  //     bottomGradientRef.current.style.opacity = "0";
-  //     topGradientRef.current.style.opacity = "1";
-  //   } else if (currentScrollTop < previousScrollTop.current) {
-  //     bottomGradientRef.current.style.opacity = "1";
-  //     topGradientRef.current.style.opacity = "0";
-  //   }
+  function handleGradientVisibility(
+    event: React.UIEvent<HTMLDivElement, UIEvent>
+  ) {
+    if (!bottomGradientRef.current || !topGradientRef.current) {
+      return;
+    }
+    const target = event.target as HTMLDivElement;
+    if (target.clientHeight >= target.scrollHeight) {
+      bottomGradientRef.current.style.opacity = "0";
+      topGradientRef.current.style.opacity = "0";
+      return;
+    }
+    const currentScrollTop = target.scrollTop;
+    if (currentScrollTop > previousScrollTop.current) {
+      bottomGradientRef.current.style.opacity = "0";
+      topGradientRef.current.style.opacity = "1";
+    } else if (currentScrollTop < previousScrollTop.current) {
+      bottomGradientRef.current.style.opacity = "1";
+      topGradientRef.current.style.opacity = "0";
+    }
 
-  //   previousScrollTop.current = currentScrollTop;
-  // }
-
-  // useEffect(() => {
-  //   // if (
-  //   //   !bottomGradientRef.current ||
-  //   //   !topGradientRef.current ||
-  //   //   !optionRef.current
-  //   // ) {
-  //   //   return;
-  //   // }
-  //   // const canvas = optionRef.current;
-  //   // if (canvas.clientHeight > canvas.scrollHeight) {
-  //   //   topGradientRef.current.style.opacity = "1";
-  //   //   bottomGradientRef.current.style.opacity = "0";
-  //   //   return;
-  //   // }
-  //   // canvas.addEventListener("scroll", handleGradientVisibility);
-  //   // return () => canvas.removeEventListener("scroll", handleGradientVisibility);
-  // }, [bottomGradientRef, topGradientRef, optionRef]);
-
-  if (!selectedShapes.length || !toolBarRef) {
-    return;
+    previousScrollTop.current = currentScrollTop;
   }
 
-  const { width } = toolBarRef.getBoundingClientRect();
+  function downloadURI(uri: string, name: string) {
+    const link = document.createElement("a");
+    link.download = name;
+    link.href = uri;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
 
   return (
     <div
       id="optionbar"
       ref={optionRef}
-      // onScroll={handleGradientVisibility}
-      style={{
-        width: width,
-        // height: 500,
-        // top: `${optionsAnchor.y - 40}px`,
-        // left: `${optionsAnchor.x}px`,
-        // width: `${optionsAnchor.width + optionsAnchor.width}px`,
-      }}
-      className="pointer-events-auto cursor-crosshair overflow-auto absolute select-none right-0 h-full max-w-md w-md border z-10 border-white/10 animate-optionOpen bg-foreground/80 backdrop-blur-2xl"
+      onScroll={handleGradientVisibility}
+      className="pointer-events-auto cursor-crosshair overflow-auto absolute select-none right-0 h-full max-w-xs w-xs border z-10 border-white/10 animate-optionOpen bg-foreground/80 backdrop-blur-2xl"
     >
-      <div className="w-full bg-foreground sticky top-0 left-0 p-2 z-50 ">
-        <div className="w-full mb-3 flex justify-between border border-white/10 rounded-xl">
+      <div className="w-full sticky bg-foreground/80 backdrop-blur-2xl top-0 left-0 z-50">
+        <div className="w-full mb-3 flex justify-between border-b border-white/10">
           <button
             onClick={() => setActiveTab(0)}
-            className={`w-full uppercase text-xs tracking-widest p-3 m-1 rounded-xl cursor-pointer ${
-              activeTab == 0 ? "bg-green-800/10 text-green-400" : ""
+            className={`w-full text-xs py-3 m-0.5 flex items-center justify-center gap-1 cursor-pointer ${
+              activeTab == 0 ? "bg-green-800/5 text-green-400" : ""
             } `}
           >
-            Edit styles
+            <RiEditCircleLine fontSize={18} />
+            Styles
           </button>
           <button
             onClick={() => setActiveTab(1)}
-            className={`w-full uppercase text-xs tracking-widest p-3 m-1 rounded-xl cursor-pointer ${
-              activeTab == 1 ? "bg-green-800/10 text-green-400" : ""
+            className={`w-full text-xs py-3 m-0.5 flex items-center justify-center gap-1 cursor-pointer ${
+              activeTab == 1 ? "bg-green-800/5 text-green-400" : ""
             } `}
           >
+            <IoColorFilterOutline fontSize={18} />
             Filters
+          </button>
+          <button
+            onClick={() => setActiveTab(2)}
+            className={`w-full text-xs py-3 m-0.5 flex items-center justify-center gap-1 cursor-pointer ${
+              activeTab == 2 ? "bg-green-800/5 text-green-400" : ""
+            } `}
+          >
+            <RiExportLine fontSize={18} />
+            Export
           </button>
         </div>
       </div>
-      {/* <div
+      <div
         ref={topGradientRef}
-        className="h-30 pointer-events-none w-full bg-gradient-to-b z-50 from-foreground to-transparent sticky top-18 animate-opacity"
-      /> */}
+        className="h-30 opacity-0 pointer-events-none w-full bg-gradient-to-b z-50 from-foreground to-transparent sticky top-12 animate-opacity"
+      />
       {activeTab === 0 ? (
-        <div className="flex animate-openUp relative  flex-col gap-4">
+        <div className="flex animate-openUp relative -top-28 flex-col gap-4">
           {/* FIll */}
-          <div className="flex px-8 items-center justify-between">
+          <div className="flex px-5 items-center justify-between">
             <p>Fill</p>
             <div className="flex gap-2 items-center">
               <button
@@ -474,7 +476,7 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
             </div>
           </div>
           {/* BORDER */}
-          <div className="flex border-t px-8 border-b border-white/10 py-4 flex-col items-start gap-4 justify-between">
+          <div className="flex border-t px-5 border-b border-white/10 py-4 flex-col items-start gap-4 justify-between">
             <div className="flex w-full justify-between">
               <p>Border</p>
               <div className="flex gap-2 items-center">
@@ -491,9 +493,12 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
                 />
               </div>
             </div>
-            <div className="flex w-full gap-6">
-              <div className="flex gap-2 items-center w-full">
-                <label className="text-sm opacity-80" htmlFor="borderstyle">
+            <div className="flex flex-col w-full gap-6">
+              <div className="flex gap-10 items-center w-full">
+                <label
+                  className="text-sm opacity-80 w-26"
+                  htmlFor="borderstyle"
+                >
                   Style
                 </label>
                 <select
@@ -506,25 +511,29 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
                   <option value="dotted">Dotted</option>
                 </select>
               </div>
-              <div className="flex gap-2 items-center w-full">
-                <label className="text-sm opacity-80" htmlFor="width">
+              <div className="flex gap-10 items-center w-full">
+                <label className="text-sm opacity-80 w-26" htmlFor="width">
                   Width
                 </label>
                 <input
                   id="width"
+                  min={0}
+                  max={100}
                   type="number"
                   value={optionState.borderWidth}
                   className="border w-full border-white/10 rounded-md outline-none px-2"
                   onChange={(e) => updateOption("borderWidth", e.target.value)}
                 />
               </div>
-              <div className="flex gap-2 items-center w-full">
-                <label className="text-sm opacity-80" htmlFor="radius">
+              <div className="flex gap-10 items-center w-full">
+                <label className="text-sm opacity-80 w-26" htmlFor="radius">
                   Radius
                 </label>
                 <input
                   id="radius"
                   type="number"
+                  min={0}
+                  max={100}
                   value={optionState.borderRadius}
                   className="border w-full border-white/10 rounded-md outline-none px-2"
                   onChange={(e) => updateOption("borderRadius", e.target.value)}
@@ -533,7 +542,7 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
             </div>
           </div>
           {/* OPACITY */}
-          <div className="flex px-8 items-center justify-between">
+          <div className="flex px-5 items-center justify-between">
             <p>Opacity </p>
             <input
               step={10}
@@ -546,7 +555,7 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
             />
           </div>
           {/* SHADOW */}
-          <div className="flex px-8 border-t border-b border-white/10 py-4 flex-col items-start gap-4 justify-between">
+          <div className="flex px-5 border-t border-b border-white/10 py-4 flex-col items-start gap-4 justify-between">
             <div className="flex w-full justify-between">
               <p>Shadow</p>
               <div className="flex gap-2 items-center">
@@ -563,37 +572,9 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
                 />
               </div>
             </div>
-            <div className="flex flex-wrap w-full gap-4 ">
-              <div className="flex w-[47%] flex-row gap-2 items-center">
-                <label className="text-sm opacity-80" htmlFor="blur">
-                  Blur
-                </label>
-                <input
-                  type="number"
-                  value={optionState.shadowBlur}
-                  id="blur"
-                  placeholder="blur"
-                  className="border w-full border-white/10 rounded-md outline-none px-2"
-                  onChange={(e) => updateOption("shadowBlur", e.target.value)}
-                />
-              </div>
-              <div className="flex w-[47%] flex-row gap-2 items-center">
-                <label className="text-sm opacity-80" htmlFor="opacity">
-                  Opacity
-                </label>
-                <input
-                  id="opacity"
-                  type="number"
-                  value={optionState.shadowOpacity}
-                  placeholder="opacity"
-                  className="border border-white/10 rounded-md outline-none px-2 w-full"
-                  onChange={(e) =>
-                    updateOption("shadowOpacity", e.target.value)
-                  }
-                />
-              </div>
-              <div className="flex w-[47%] flex-row gap-2 items-center">
-                <label className="text-sm opacity-80" htmlFor="opacity">
+            <div className="flex flex-col flex-wrap w-full gap-4 ">
+              <div className="flex flex-row gap-10 items-center">
+                <label className="text-sm opacity-80 w-26" htmlFor="opacity">
                   OffsetX
                 </label>
                 <input
@@ -606,8 +587,8 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
                   }
                 />
               </div>
-              <div className="flex w-[47%] flex-row gap-2 items-center">
-                <label className="text-sm opacity-80" htmlFor="opacity">
+              <div className="flex flex-row gap-10 items-center">
+                <label className="text-sm opacity-80 w-26" htmlFor="opacity">
                   OffsetX
                 </label>
                 <input
@@ -620,10 +601,42 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
                   }
                 />
               </div>
+              <div className="flex flex-row gap-10 items-center">
+                <label className="text-sm opacity-80 w-26" htmlFor="blur">
+                  Blur
+                </label>
+                <input
+                  type="number"
+                  value={optionState.shadowBlur}
+                  id="blur"
+                  min={0}
+                  max={100}
+                  placeholder="blur"
+                  className="border w-full border-white/10 rounded-md outline-none px-2"
+                  onChange={(e) => updateOption("shadowBlur", e.target.value)}
+                />
+              </div>
+              <div className="flex flex-row gap-10 items-center">
+                <label className="text-sm opacity-80 w-26" htmlFor="opacity">
+                  Opacity
+                </label>
+                <input
+                  id="opacity"
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={optionState.shadowOpacity}
+                  placeholder="opacity"
+                  className="border border-white/10 rounded-md outline-none px-2 w-full"
+                  onChange={(e) =>
+                    updateOption("shadowOpacity", e.target.value)
+                  }
+                />
+              </div>
             </div>
           </div>
           {/* LINE JOINS */}
-          <div className="flex px-8 border-b border-white/10 pb-4 flex-row items-start gap-4 justify-between">
+          <div className="flex px-5 border-b border-white/10 pb-4 flex-row items-center gap-4 justify-between">
             <p>Line Joins</p>
             <div className="flex gap-2">
               <button
@@ -661,7 +674,7 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
             </select> */}
           </div>
           {/* BLEND MODE */}
-          <div className="flex px-8 pb-8 items-center justify-between">
+          <div className="flex px-5 pb-8 items-center justify-between">
             <p>Blend mode</p>
             <div className="flex gap-2">
               <select
@@ -686,10 +699,10 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
             </div>
           </div>
         </div>
-      ) : (
-        <div className="flex animate-openUp relative  flex-col gap-4">
-          <div className="flex flex-wrap w-full">
-            <div className="flex px-8 flex-row items-start gap-4 w-1/2 justify-between">
+      ) : activeTab === 1 ? (
+        <div className="flex animate-openUp relative -top-28 flex-col gap-4">
+          <div className="flex flex-col w-full gap-4">
+            <div className="flex px-5 flex-row items-start gap-4 justify-between">
               <p>Blur</p>
               <input
                 type="number"
@@ -698,7 +711,7 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
                 onChange={(e) => updateOption("blur", e.target.value)}
               />
             </div>
-            <div className="flex px-8  pb-4 flex-row items-start w-1/2 gap-4 justify-between">
+            <div className="flex px-5 border-t border-white/10 pt-4 flex-row items-start gap-4 justify-between">
               <p>Brightness</p>
               <input
                 type="number"
@@ -707,7 +720,7 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
                 onChange={(e) => updateOption("brightness", e.target.value)}
               />
             </div>
-            <div className="flex px-8 border-t border-white/10 pt-4 w-1/2 flex-row items-start gap-4 justify-between">
+            <div className="flex px-5 border-t border-white/10 pt-4 flex-row items-start gap-4 justify-between">
               <p>Contrast</p>
               <input
                 type="number"
@@ -716,7 +729,7 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
                 onChange={(e) => updateOption("contrast", e.target.value)}
               />
             </div>
-            <div className="flex px-8 border-t border-white/10 pt-4 w-1/2 flex-row items-start gap-4 justify-between">
+            <div className="flex px-5 border-t border-white/10 pt-4 flex-row items-start gap-4 justify-between">
               <p>Enhance</p>
               <input
                 type="number"
@@ -726,16 +739,7 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
               />
             </div>
           </div>
-          {/* <div className="flex px-8 border-t border-white/10 pt-4 flex-row items-start gap-4 justify-between">
-            <p>Grayscale</p>
-            <input
-              type="checkbox"
-              // value={optionState.grayscale}
-              className="border border-white/10 w-20"
-              onChange={(e) => updateOption("grayscale", e.target.value)}
-            />
-          </div> */}
-          <div className="flex px-8  border-t border-white/10 pt-4 gap-2 w-full justify-between">
+          <div className="flex px-5  border-t border-white/10 pt-4 gap-2 w-full justify-between">
             <p>Grayscale</p>
             <input
               type="checkbox"
@@ -743,11 +747,11 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
               onChange={(e) => updateOption("grayscale", e.target.value)}
             />
           </div>
-          <div className="flex px-8 border-t border-b border-white/10 py-4 flex-col items-start gap-4 justify-between">
+          <div className="flex px-5 border-t border-b border-white/10 py-4 flex-col items-start gap-4 justify-between">
             <p>HSL</p>
-            <div className="flex w-full gap-4 ">
-              <div className="flex  flex-row gap-2 items-center">
-                <label className="text-sm opacity-80" htmlFor="hue">
+            <div className="flex flex-col w-full gap-4 ">
+              <div className="flex  flex-row gap-10 items-center">
+                <label className="text-sm opacity-80 w-26" htmlFor="hue">
                   Hue
                 </label>
                 <input
@@ -759,8 +763,8 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
                   onChange={(e) => updateOption("HSL_hue", e.target.value)}
                 />
               </div>
-              <div className="flex  flex-row gap-2 items-center">
-                <label className="text-sm opacity-80" htmlFor="saturation">
+              <div className="flex  flex-row gap-10 items-center">
+                <label className="text-sm opacity-80 w-26" htmlFor="saturation">
                   Saturation
                 </label>
                 <input
@@ -774,11 +778,12 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
                   }
                 />
               </div>
-              <div className="flex  flex-row gap-2 items-center">
-                <label className="text-sm opacity-80" htmlFor="luminance">
+              <div className="flex  flex-row gap-10 items-center">
+                <label className="text-sm opacity-80 w-26" htmlFor="luminance">
                   Luminance
                 </label>
                 <input
+                  id="luminance"
                   type="number"
                   placeholder="luminance"
                   value={optionState.HSL_luminance}
@@ -790,12 +795,12 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
               </div>
             </div>
           </div>
-          <div className="flex px-8 border-b border-white/10 pb-4 flex-col items-start gap-4 justify-between">
+          <div className="flex px-5 border-b border-white/10 pb-4 flex-col items-start gap-4 justify-between">
             <p>RGBA</p>
             <div className="flex w-full gap-4 ">
               <div className="flex flex-col gap-2 w-full">
                 <div className="flex  flex-row gap-2 items-center">
-                  <label className="text-sm opacity-80" htmlFor="red">
+                  <label className="text-sm opacity-80 w-26" htmlFor="red">
                     Red
                   </label>
                   <input
@@ -810,7 +815,7 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
                   />
                 </div>
                 <div className="flex  flex-row gap-2 items-center">
-                  <label className="text-sm opacity-80" htmlFor="blue">
+                  <label className="text-sm opacity-80 w-26" htmlFor="blue">
                     Blue
                   </label>
                   <input
@@ -827,7 +832,7 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
               </div>
               <div className="flex flex-col gap-2 w-full">
                 <div className="flex  flex-row gap-2 items-center">
-                  <label className="text-sm opacity-80" htmlFor="green">
+                  <label className="text-sm opacity-80 w-26" htmlFor="green">
                     Green
                   </label>
                   <input
@@ -842,7 +847,7 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
                   />
                 </div>
                 <div className="flex  flex-row gap-2 items-center">
-                  <label className="text-sm opacity-80" htmlFor="alpha">
+                  <label className="text-sm opacity-80 w-26" htmlFor="alpha">
                     Alpha
                   </label>
                   <input
@@ -860,7 +865,7 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
               </div>
             </div>
           </div>
-          <div className="flex px-8 gap-2 w-full justify-between">
+          <div className="flex px-5 gap-2 w-full justify-between">
             <p>Invert</p>
             <input
               type="checkbox"
@@ -868,11 +873,11 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
               onChange={(e) => updateOption("invert", e.target.value)}
             />
           </div>
-          <div className="flex px-8 border-t border-b border-white/10 py-4 flex-col items-start gap-4 justify-between">
+          <div className="flex px-5 border-t border-b border-white/10 py-4 flex-col items-start gap-4 justify-between">
             <p>Kaleidoscope</p>
             <div className="flex w-full gap-4 ">
               <div className="flex  flex-row gap-2 items-center">
-                <label className="text-sm opacity-80" htmlFor="power">
+                <label className="text-sm opacity-80 w-26" htmlFor="power">
                   Power
                 </label>
                 <input
@@ -885,7 +890,7 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
                 />
               </div>
               <div className="flex  flex-row gap-2 items-center">
-                <label className="text-sm opacity-80" htmlFor="angle">
+                <label className="text-sm opacity-80 w-26" htmlFor="angle">
                   Angle
                 </label>
                 <input
@@ -899,7 +904,7 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
               </div>
             </div>
           </div>
-          <div className="flex px-8 gap-2 w-full justify-between">
+          <div className="flex px-5 gap-2 w-full justify-between">
             <p>Mask</p>
             <input
               type="number"
@@ -909,7 +914,7 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
               onChange={(e) => updateOption("mask", e.target.value)}
             />
           </div>
-          <div className="flex px-8 border-t border-white/10 py-4 flex-row items-start gap-4 justify-between">
+          <div className="flex px-5 border-t border-white/10 py-4 flex-row items-start gap-4 justify-between">
             <p>Noise</p>
             <input
               type="number"
@@ -919,6 +924,59 @@ function OptionBar(props: { toolBarRef: HTMLDivElement | null }) {
               onChange={(e) => updateOption("noise", e.target.value)}
             />
           </div>
+        </div>
+      ) : (
+        <div className="flex animate-openUp relative m-3 -top-32 flex-col gap-6">
+          <div className="flex flex-col gap-3 items-start">
+            <div className="flex items-center justify-between w-full">
+              <p className="uppercase tracking-widest opacity-70 text-xs">
+                Preview
+              </p>
+              <input
+                type="color"
+                onChange={(e) => {
+                  if (canvasRef) {
+                    canvasRef.container().style.backgroundColor =
+                      e.target.value;
+                  }
+                }}
+              />
+            </div>
+            <img
+              src={canvasRef?.toDataURL()}
+              className="w-full rounded-md h-40 border border-white/10"
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label
+              className="uppercase tracking-widest opacity-70 text-xs"
+              htmlFor="export"
+            >
+              Export as
+            </label>
+            <select
+              id="export"
+              value={exportType}
+              onChange={(e) => setExportType(e.target.value)}
+              className="border w-full border-white/10 rounded-md outline-none p-2"
+            >
+              {/* <option value="pdf">PDF</option> */}
+              <option value="jpeg">JPG</option>
+              {/* <option value="svg">SVG</option> */}
+              <option value="png">PNG</option>
+            </select>
+          </div>
+          <button
+            onClick={() => {
+              const imageURI = canvasRef?.toDataURL({
+                mimeType: `image/${exportType}`,
+              });
+              if (imageURI) downloadURI(imageURI, "canvas");
+            }}
+            className="w-full bg-gradient-to-b cursor-pointer hover:brightness-125 transition-all from-green-700 to-green-900 text-sm p-3 rounded-lg "
+          >
+            Export
+          </button>
         </div>
       )}
       {/* <div

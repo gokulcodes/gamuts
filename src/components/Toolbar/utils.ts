@@ -100,8 +100,8 @@ export async function CreateShapes(
       image = await getImage(image);
       if (!image) break;
       shape = {
-        x: 600,
-        y: 600,
+        x: 100,
+        y: 100,
         width: image.width,
         height: image.height,
         radius: 80,

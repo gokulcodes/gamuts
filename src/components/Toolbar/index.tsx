@@ -9,7 +9,6 @@ import gamutsLogo from "/gamuts_logo.svg";
 import AppController from "../../controllers/AppController";
 import { LuMousePointer2 } from "react-icons/lu";
 import { TOOL } from "../../libs";
-import OptionBar from "../OptionBar";
 import { CreateShapes } from "./utils";
 // import { Circle, Rect, RegularPolygon } from "react-konva";
 
@@ -60,9 +59,9 @@ function ToolRenderer(props: { tool: ToolTypes; isActive: boolean }) {
       // >
       <>
         <label
-          className={`text-xl p-3 rounded-xl outline-none cursor-pointer ${
-            props.isActive ? "bg-green-700/10 text-green-400" : ""
-          } hover:bg-green-700/10 hover:text-green-400`}
+          className={`text-base p-3 rounded-xl outline-none cursor-pointer ${
+            props.isActive ? "bg-green-700/5 text-green-300" : ""
+          } hover:bg-green-700/5 hover:text-green-300`}
           htmlFor="fileInput"
         >
           {tool.icon}
@@ -81,9 +80,9 @@ function ToolRenderer(props: { tool: ToolTypes; isActive: boolean }) {
   return (
     <button
       title={tool.name}
-      className={`text-xl p-3 rounded-xl outline-none cursor-pointer ${
-        props.isActive ? "bg-green-700/10 text-green-400" : ""
-      } hover:bg-green-700/10 hover:text-green-400`}
+      className={`text-base p-3 rounded-xl outline-none cursor-pointer ${
+        props.isActive ? "bg-green-700/5 text-green-300" : ""
+      } hover:bg-green-700/5 hover:text-green-300`}
       onClick={() => tool.action()}
     >
       {tool.icon}
@@ -178,37 +177,34 @@ function Toolbar() {
   ];
 
   return (
-    <>
-      <OptionBar toolBarRef={toolBarRef.current} />
-      <div className="absolute z-50 left-0 bottom-5 w-full transition-all ">
-        <aside className="gap-4 flex flex-col w-full items-center justify-center relative top-1/4">
-          <div
-            ref={toolBarRef}
-            className="flex flex-row z-0 backdrop-blur-2xl gap-1 shadow-2xl animate-toolbarOpen items-center justify-center border border-white/10 bg-foreground/60 p-2 rounded-2xl"
-          >
-            {Tools.map((tool) => (
-              <ToolRenderer
-                key={tool.id}
-                isActive={state.activeTool === tool.id}
-                tool={tool}
-              />
-            ))}
-          </div>
-        </aside>
-        <div className="absolute flex items-center gap-4 pointer-events-auto z-50 right-5 bottom-0">
-          <a
-            href="https://github.com/gokulcodes/gamuts"
-            target="_blank"
-            className="logo text-lg p-4 bg-foreground/40 backdrop-blur-2xl border border-white/10 rounded-xl"
-          >
-            <BsGithub />
-          </a>
-          <a href="/">
-            <img src={gamutsLogo} className="logo" alt="Vite logo" />
-          </a>
+    <div className="absolute z-50 left-0 bottom-5 w-full transition-all ">
+      <aside className="gap-4 flex flex-col w-full items-center justify-center relative top-1/4">
+        <div
+          ref={toolBarRef}
+          className="flex flex-row z-0 backdrop-blur-2xl gap-1 shadow-2xl animate-toolbarOpen items-center justify-center border border-white/10 bg-foreground/60 p-2 rounded-2xl"
+        >
+          {Tools.map((tool) => (
+            <ToolRenderer
+              key={tool.id}
+              isActive={state.activeTool === tool.id}
+              tool={tool}
+            />
+          ))}
         </div>
+      </aside>
+      <div className="absolute flex items-center gap-2 pointer-events-auto z-50 right-5 bottom-0">
+        <a
+          href="https://github.com/gokulcodes/gamuts"
+          target="_blank"
+          className="text-md p-2 items-center bg-foreground/40 backdrop-blur-2xl border border-white/15 rounded-lg"
+        >
+          <BsGithub />
+        </a>
+        <a href="/">
+          <img src={gamutsLogo} className="logo" alt="Vite logo" />
+        </a>
       </div>
-    </>
+    </div>
   );
 }
 
