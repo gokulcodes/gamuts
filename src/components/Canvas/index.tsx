@@ -6,13 +6,13 @@ import {
   Layer,
   Stage,
   Transformer,
-  Rect,
   Circle,
   RegularPolygon,
   Line,
   Arrow,
   Image,
   Group,
+  Rect,
 } from "react-konva";
 import Zoomer from "../Zoomer";
 import AppController from "../../controllers/AppController";
@@ -20,6 +20,49 @@ import { TOOL } from "../../libs";
 import type { Shape } from "../../libs";
 import TextCustom from "./Text";
 import OptionBar from "../OptionBar";
+// import GroupRect from "./GroupRect";
+
+// Helper functions for calculating bounding boxes of rotated rectangles
+const degToRad = (angle: number) => (angle / 180) * Math.PI;
+
+const getCorner = (
+  pivotX: number,
+  pivotY: number,
+  diffX: number,
+  diffY: number,
+  angle: number
+) => {
+  const distance = Math.sqrt(diffX * diffX + diffY * diffY);
+  angle += Math.atan2(diffY, diffX);
+  const x = pivotX + distance * Math.cos(angle);
+  const y = pivotY + distance * Math.sin(angle);
+  return { x, y };
+};
+
+const getClientRect = (element: Shape) => {
+  if (!element) return;
+  if (!element.x || !element.y || !element.width || !element.height) return;
+  const { x, y, width, height } = element;
+  const rotation = 0;
+  const rad = degToRad(rotation);
+
+  const p1 = getCorner(x, y, 0, 0, rad);
+  const p2 = getCorner(x, y, width, 0, rad);
+  const p3 = getCorner(x, y, width, height, rad);
+  const p4 = getCorner(x, y, 0, height, rad);
+
+  const minX = Math.min(p1.x, p2.x, p3.x, p4.x);
+  const minY = Math.min(p1.y, p2.y, p3.y, p4.y);
+  const maxX = Math.max(p1.x, p2.x, p3.x, p4.x);
+  const maxY = Math.max(p1.y, p2.y, p3.y, p4.y);
+
+  return {
+    x: minX,
+    y: minY,
+    width: maxX - minX,
+    height: maxY - minY,
+  };
+};
 
 function Canvas() {
   const { state, dispatch } = useContext(AppController);
@@ -34,6 +77,15 @@ function Canvas() {
   const trRef = useRef<Konva.Transformer>(null);
   const shapeRefs = useRef(new Map());
   const isDrawing = useRef(false);
+  const initialSelectionPos = {
+    visible: false,
+    x1: 0,
+    y1: 0,
+    x2: 0,
+    y2: 0,
+  };
+  const [selectionRectangle, setSelectionRectangle] =
+    useState(initialSelectionPos);
 
   useEffect(() => {
     if (!canvasRef.current) {
@@ -55,7 +107,7 @@ function Canvas() {
       window.removeEventListener("keydown", handlePan);
       window.removeEventListener("keyup", handlePanUp);
     };
-  }, [canvasRef, radius]);
+  }, [canvasRef]);
 
   useEffect(() => {
     // shape selections
@@ -98,17 +150,23 @@ function Canvas() {
       return;
     }
     isDrawing.current = true;
-
-    if (state.activeTool === TOOL.SELECT) {
-      return;
-    }
-
     const stage = event.target.getStage();
     if (!stage) {
       return;
     }
     const points = stage.getPointerPosition();
     if (!points) {
+      return;
+    }
+
+    if (state.activeTool === TOOL.SELECT) {
+      setSelectionRectangle({
+        visible: true,
+        x1: points.x,
+        y1: points.y,
+        x2: points.x,
+        y2: points.y,
+      });
       return;
     }
 
@@ -251,6 +309,15 @@ function Canvas() {
       return;
     }
 
+    if (state.activeTool === TOOL.SELECT) {
+      const newRect = selectionRectangle;
+      newRect.x2 = point.x;
+      newRect.y2 = point.y;
+      setRadius(point.y);
+      setSelectionRectangle(newRect);
+      return;
+    }
+
     if (drawingShape) {
       if (state.activeTool === TOOL.RECT) {
         const prevRect = drawingShape;
@@ -298,7 +365,39 @@ function Canvas() {
     }
     isDrawing.current = false;
     canvasRef.current.content.style.cursor = "default";
+    if (state.activeTool === TOOL.SELECT) {
+      setSelectionRectangle(initialSelectionPos);
+      setRadius(0);
+      const selBox = {
+        x: Math.min(selectionRectangle.x1, selectionRectangle.x2),
+        y: Math.min(selectionRectangle.y1, selectionRectangle.y2),
+        width: Math.abs(selectionRectangle.x2 - selectionRectangle.x1),
+        height: Math.abs(selectionRectangle.y2 - selectionRectangle.y1),
+      };
 
+      const ids: Array<number> = [];
+      state.structures.filter((shape, index) => {
+        // Check if rectangle intersects with selection box
+        const bound = getClientRect(shape);
+        if (!shape || !bound) return;
+        // console.log(bound);
+        const isIntersecting = Konva.Util.haveIntersection(selBox, bound);
+
+        if (isIntersecting) {
+          ids.push(index);
+        }
+      });
+      dispatch({
+        type: "updateSelectedShapes",
+        payload: {
+          ...state,
+          selectedShapes: ids,
+        },
+      });
+
+      // setSelectedIds(selected.map((rect) => rect.id));
+      return;
+    }
     if (drawingShape) {
       dispatch({
         type: "mutateStructures",
@@ -393,10 +492,18 @@ function Canvas() {
       if (!struct?.shapeName) return;
       if (struct.shapeName === "rect") {
         return (
+          // <GroupRect
+          //   struct={struct}
+          //   updateRef={(node: Konva.Node) => {
+          //     if (node) {
+          //       shapeRefs.current.set(index, node);
+          //     }
+          //   }}
+          // />
           <Group key={index} onDblClick={(e) => console.log(e)}>
             {/* @ts-expect-error */}
             <Rect
-              ref={(node) => {
+              ref={(node: Konva.Rect) => {
                 if (node) {
                   shapeRefs.current.set(index, node);
                 }
@@ -539,6 +646,17 @@ function Canvas() {
               anchorFill="#05df72"
               anchorStroke="#05df72"
             />
+            {selectionRectangle.visible && (
+              <Rect
+                x={Math.min(selectionRectangle.x1, selectionRectangle.x2)}
+                y={Math.min(selectionRectangle.y1, selectionRectangle.y2)}
+                width={Math.abs(selectionRectangle.x2 - selectionRectangle.x1)}
+                height={Math.abs(selectionRectangle.y2 - selectionRectangle.y1)}
+                fill="rgba(255,255,255,0.05)"
+                stroke="rgba(255,255,255,0.2)"
+                strokeWidth={0.5}
+              />
+            )}
           </Layer>
           {/* <CircleGrid layerRef={layerRef} /> */}
         </Stage>

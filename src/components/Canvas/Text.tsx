@@ -178,7 +178,7 @@ export default function TextCustom(props: {
         // fontSize={20}
         draggable
         // width={textWidth}
-        fill="white"
+        fill="black"
         onDblClick={handleTextDblClick}
         onDblTap={handleTextDblClick}
         // onTransform={handleTransform}
