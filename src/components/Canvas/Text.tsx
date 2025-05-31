@@ -1,14 +1,26 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Html } from "react-konva-utils";
 import { Text as KonvaText } from "react-konva";
+import Konva from "konva";
+import type { Shape } from "../../libs";
 // import Konva from "konva";
 // Konva._fixTextRendering = true;
 
-const TextEditor = ({ textNode, onClose, onChange }) => {
-  const textareaRef = useRef(null);
+const TextEditor = (props: {
+  textNode: Konva.Text | null;
+  onClose: Function;
+  onChange: Function;
+}) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { textNode, onClose, onChange } = props;
 
   function editor() {
     const textarea = textareaRef.current;
+    if (!textarea || !textNode) {
+      return;
+    }
     const textPosition = textNode.position();
     const areaPosition = {
       x: textPosition.x,
@@ -32,11 +44,11 @@ const TextEditor = ({ textNode, onClose, onChange }) => {
     textarea.style.background = "none";
     textarea.style.outline = "none";
     textarea.style.resize = "none";
-    textarea.style.lineHeight = textNode.lineHeight();
+    // textarea.style.lineHeight = textNode.lineHeight();
     textarea.style.fontFamily = textNode.fontFamily();
     textarea.style.transformOrigin = "left top";
     textarea.style.textAlign = textNode.align();
-    textarea.style.color = textNode.fill();
+    // textarea.style.color = textNode.fill();
 
     const rotation = textNode.rotation();
     let transform = "";
@@ -50,7 +62,7 @@ const TextEditor = ({ textNode, onClose, onChange }) => {
 
     textarea.focus();
 
-    const handleOutsideClick = (e) => {
+    const handleOutsideClick = (e: MouseEvent) => {
       if (e.target !== textarea) {
         onChange(textarea.value);
         onClose();
@@ -58,7 +70,7 @@ const TextEditor = ({ textNode, onClose, onChange }) => {
     };
 
     // Add event listeners
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
         onChange(textarea.value);
@@ -92,12 +104,11 @@ const TextEditor = ({ textNode, onClose, onChange }) => {
   }
 
   useEffect(() => {
-    console.log(textareaRef.current);
     if (!textareaRef.current) {
       return;
     }
     editor();
-  }, [textNode, textareaRef.current, onChange, onClose]);
+  }, [textNode, editor, onChange, onClose]);
 
   return (
     <Html>
@@ -117,30 +128,34 @@ const TextEditor = ({ textNode, onClose, onChange }) => {
   );
 };
 
-export default function TextCustom({ struct, updateRef }) {
+export default function TextCustom(props: {
+  struct: Shape;
+  updateRef: Function;
+}) {
   const [text, setText] = useState("New Text");
+  const { struct, updateRef } = props;
   const [isEditing, setIsEditing] = useState(false);
-  const [textWidth, setTextWidth] = useState(200);
-  const textRef = useRef(null);
+  // const [textWidth, setTextWidth] = useState(200);
+  const textRef = useRef<Konva.Text>(null);
 
   const handleTextDblClick = useCallback(() => {
     setIsEditing(true);
   }, []);
 
-  const handleTextChange = useCallback((newText) => {
+  const handleTextChange = useCallback((newText: string) => {
     setText(newText);
   }, []);
 
-  const handleTransform = useCallback((e) => {
-    const node = textRef.current;
-    const scaleX = node.scaleX();
-    const newWidth = node.width() * scaleX;
-    setTextWidth(newWidth);
-    node.setAttrs({
-      width: newWidth,
-      scaleX: 1,
-    });
-  }, []);
+  // const handleTransform = useCallback((e) => {
+  //   const node = textRef.current;
+  //   const scaleX = node.scaleX();
+  //   const newWidth = node.width() * scaleX;
+  //   setTextWidth(newWidth);
+  //   node.setAttrs({
+  //     width: newWidth,
+  //     scaleX: 1,
+  //   });
+  // }, []);
 
   function handleClose() {
     setIsEditing(false);
@@ -148,6 +163,7 @@ export default function TextCustom({ struct, updateRef }) {
 
   return (
     <>
+      {/* @ts-expect-error */}
       <KonvaText
         ref={(node) => {
           if (node) {
