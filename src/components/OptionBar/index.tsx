@@ -504,7 +504,7 @@ function OptionBar(props: { canvasRef: Konva.Stage | null }) {
         className="h-30 opacity-0 pointer-events-none w-full bg-gradient-to-b z-50 from-foreground to-transparent sticky top-12 animate-opacity"
       />
       {activeTab === 0 ? (
-        <div className="flex animate-openUp relative -top-28 flex-col gap-4">
+        <div className="flex relative -top-28 flex-col gap-4">
           {/* TEXT_DECORATION */}
           <div className="flex px-5 border-b border-white/10 pb-4 flex-col items-start gap-4 justify-between">
             <div className="flex flex-col w-full gap-6">
@@ -825,7 +825,7 @@ function OptionBar(props: { canvasRef: Konva.Stage | null }) {
           </div>
         </div>
       ) : activeTab === 1 ? (
-        <div className="flex animate-openUp relative -top-28 flex-col gap-4">
+        <div className="flex relative -top-28 flex-col gap-4">
           <div className="flex flex-col w-full gap-4">
             <div className="flex px-5 flex-row items-start gap-4 justify-between">
               <p>Blur</p>
@@ -1051,7 +1051,7 @@ function OptionBar(props: { canvasRef: Konva.Stage | null }) {
           </div>
         </div>
       ) : (
-        <div className="flex animate-openUp relative m-3 -top-32 flex-col gap-6">
+        <div className="flex relative m-3 -top-32 flex-col gap-6">
           <div className="flex flex-col gap-3 items-start">
             <div className="flex items-center justify-between w-full">
               <p className="uppercase tracking-widest opacity-70 text-xs">

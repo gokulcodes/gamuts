@@ -92,10 +92,49 @@ function Canvas() {
       return;
     }
     console.log(radius);
-    function handlePan(event: KeyboardEvent) {
+    async function handlePan(event: KeyboardEvent) {
+      console.log(event.code);
       if (event.code === "Space" && canvasRef.current) {
         canvasRef.current.content.style.cursor = "grab";
         setPan(false);
+      } else if (event.code === "Backspace") {
+        const indices = new Set(state.selectedShapes);
+        const newStruct = state.structures.filter((_, id) => {
+          return !indices.has(id);
+        });
+        dispatch({
+          type: "mutateStructures",
+          payload: {
+            ...state,
+            structures: newStruct,
+          },
+        });
+        dispatch({
+          type: "updateSelectedShapes",
+          payload: {
+            ...state,
+            selectedShapes: [],
+          },
+        });
+      } else if ((event.metaKey || event.ctrlKey) && event.code === "KeyC") {
+        // copy selected indices jsons
+        const copyContent = [];
+        for (const ind of state.selectedShapes) {
+          const selectedStruct = state.structures[ind];
+          copyContent.push(selectedStruct);
+        }
+        await navigator.clipboard.writeText(JSON.stringify(copyContent));
+      } else if ((event.metaKey || event.ctrlKey) && event.code === "KeyV") {
+        const copiedContent = await navigator.clipboard.readText();
+        const parsedShapes = JSON.parse(copiedContent);
+        const mutatedStruct = [...state.structures, ...parsedShapes];
+        dispatch({
+          type: "mutateStructures",
+          payload: {
+            ...state,
+            structures: mutatedStruct,
+          },
+        });
       }
     }
     function handlePanUp() {
@@ -107,7 +146,7 @@ function Canvas() {
       window.removeEventListener("keydown", handlePan);
       window.removeEventListener("keyup", handlePanUp);
     };
-  }, [canvasRef]);
+  }, [canvasRef, state]);
 
   useEffect(() => {
     // shape selections
@@ -412,7 +451,7 @@ function Canvas() {
         type: "updateSelectedShapes",
         payload: {
           ...state,
-          selectedShapes: [0],
+          selectedShapes: [state.structures.length - 1],
         },
       });
     }
@@ -654,8 +693,8 @@ function Canvas() {
                 y={Math.min(selectionRectangle.y1, selectionRectangle.y2)}
                 width={Math.abs(selectionRectangle.x2 - selectionRectangle.x1)}
                 height={Math.abs(selectionRectangle.y2 - selectionRectangle.y1)}
-                fill="rgba(255,255,255,0.05)"
-                stroke="rgba(255,255,255,0.2)"
+                fill="rgba(255,255,255,0.01)"
+                stroke="rgba(255,255,255,0.3)"
                 strokeWidth={0.5}
               />
             )}
