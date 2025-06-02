@@ -10,6 +10,7 @@ import AppController from "../../controllers/AppController";
 import { LuMousePointer2 } from "react-icons/lu";
 import { TOOL } from "../../libs";
 import { CreateShapes } from "./utils";
+import { GoSidebarExpand } from "react-icons/go";
 // import { Circle, Rect, RegularPolygon } from "react-konva";
 
 type ToolTypes = {
@@ -176,6 +177,13 @@ function Toolbar() {
     },
   ];
 
+  function handleOptionCollapse() {
+    dispatch({
+      type: "optionbarVisible",
+      payload: { ...state, optionbarVisible: true },
+    });
+  }
+
   return (
     <div className="absolute z-50 left-0 bottom-5 w-full transition-all ">
       <aside className="gap-4 flex flex-col w-full items-center justify-center relative top-1/4">
@@ -193,6 +201,14 @@ function Toolbar() {
         </div>
       </aside>
       <div className="absolute flex items-center gap-2 pointer-events-auto z-50 right-5 bottom-0">
+        {!state.optionbarVisible && (
+          <button
+            onClick={handleOptionCollapse}
+            className="text-md cursor-pointer p-2 items-center bg-foreground/40 backdrop-blur-2xl border border-white/15 rounded-lg"
+          >
+            <GoSidebarExpand />
+          </button>
+        )}
         <a
           href="https://github.com/gokulcodes/gamuts"
           target="_blank"

@@ -20,6 +20,7 @@ import {
 } from "react-icons/tb";
 import { RiEditCircleLine, RiExportLine } from "react-icons/ri";
 import { IoColorFilterOutline } from "react-icons/io5";
+import { GoSidebarCollapse } from "react-icons/go";
 
 function OptionBar(props: { canvasRef: Konva.Stage | null }) {
   const { canvasRef } = props;
@@ -461,12 +462,23 @@ function OptionBar(props: { canvasRef: Konva.Stage | null }) {
     document.body.removeChild(link);
   }
 
+  function handleOptionCollapse() {
+    dispatch({
+      type: "optionbarVisible",
+      payload: { ...state, optionbarVisible: false },
+    });
+  }
+
+  if (!state.optionbarVisible) {
+    return null;
+  }
+
   return (
     <div
       id="optionbar"
       ref={optionRef}
       onScroll={handleGradientVisibility}
-      className="pointer-events-auto cursor-crosshair overflow-auto absolute select-none right-0 h-full max-w-xs w-xs border z-10 border-white/10 animate-optionOpen bg-foreground/80 backdrop-blur-2xl"
+      className="pointer-events-auto cursor-crosshair overflow-auto absolute select-none right-0 h-full max-w-xs w-xs border z-50 border-white/10 animate-optionOpen bg-foreground/80 backdrop-blur-2xl"
     >
       <div className="w-full sticky bg-foreground/80 backdrop-blur-2xl top-0 left-0 z-50">
         <div className="w-full mb-3 flex justify-between border-b border-white/10">
@@ -499,12 +511,12 @@ function OptionBar(props: { canvasRef: Konva.Stage | null }) {
           </button>
         </div>
       </div>
-      <div
+      {/* <div
         ref={topGradientRef}
         className="h-30 opacity-0 pointer-events-none w-full bg-gradient-to-b z-50 from-foreground to-transparent sticky top-12 animate-opacity"
-      />
+      /> */}
       {activeTab === 0 ? (
-        <div className="flex relative -top-28 flex-col gap-4">
+        <div className="flex relative flex-col gap-4">
           {/* TEXT_DECORATION */}
           <div className="flex px-5 border-b border-white/10 pb-4 flex-col items-start gap-4 justify-between">
             <div className="flex flex-col w-full gap-6">
@@ -825,7 +837,7 @@ function OptionBar(props: { canvasRef: Konva.Stage | null }) {
           </div>
         </div>
       ) : activeTab === 1 ? (
-        <div className="flex relative -top-28 flex-col gap-4">
+        <div className="flex relative flex-col gap-4">
           <div className="flex flex-col w-full gap-4">
             <div className="flex px-5 flex-row items-start gap-4 justify-between">
               <p>Blur</p>
@@ -1051,7 +1063,7 @@ function OptionBar(props: { canvasRef: Konva.Stage | null }) {
           </div>
         </div>
       ) : (
-        <div className="flex relative m-3 -top-32 flex-col gap-6">
+        <div className="flex relative m-3 flex-col gap-6">
           <div className="flex flex-col gap-3 items-start">
             <div className="flex items-center justify-between w-full">
               <p className="uppercase tracking-widest opacity-70 text-xs">
@@ -1108,6 +1120,12 @@ function OptionBar(props: { canvasRef: Konva.Stage | null }) {
         ref={bottomGradientRef}
         className="h-30 pointer-events-none w-full bg-gradient-to-t from-foreground to-transparent sticky bottom-0 animate-opacity"
       /> */}
+      <button
+        onClick={handleOptionCollapse}
+        className="fixed bottom-5 left-5 pointer-events-auto cursor-pointer text-md p-2 items-center bg-foreground/40 backdrop-blur-2xl border border-white/15 rounded-lg"
+      >
+        <GoSidebarCollapse />
+      </button>
     </div>
   );
 }

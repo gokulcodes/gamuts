@@ -3,6 +3,7 @@ import { TOOL, type Shape } from "../libs";
 
 export const initialState = {
   toolbarVisible: false,
+  optionbarVisible: true,
   structures: [],
   selectedShapes: [],
   activeTool: TOOL.SELECT,
@@ -11,6 +12,7 @@ export const initialState = {
 export type State = {
   toolbarVisible: boolean;
   structures: Array<Shape>;
+  optionbarVisible: boolean;
   selectedShapes: Array<number>;
   activeTool: string;
 };
@@ -35,6 +37,8 @@ export const reducer = (state: State, action: ActionType): State => {
       return { ...state, activeTool: action.payload.activeTool };
     case "updateSelectedShapes":
       return { ...state, selectedShapes: action.payload.selectedShapes };
+    case "optionbarVisible":
+      return { ...state, optionbarVisible: action.payload.optionbarVisible };
     default:
       return state;
   }
