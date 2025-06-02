@@ -693,8 +693,8 @@ function Canvas() {
                 y={Math.min(selectionRectangle.y1, selectionRectangle.y2)}
                 width={Math.abs(selectionRectangle.x2 - selectionRectangle.x1)}
                 height={Math.abs(selectionRectangle.y2 - selectionRectangle.y1)}
-                fill="rgba(255,255,255,0.01)"
-                stroke="rgba(255,255,255,0.3)"
+                fill="rgba(0,129,64,0.01)"
+                stroke="rgba(5,223,114,0.5)"
                 strokeWidth={0.5}
               />
             )}
