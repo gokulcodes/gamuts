@@ -185,7 +185,7 @@ function Toolbar() {
   }
 
   return (
-    <div className="absolute z-50 left-0 bottom-5 w-full transition-all ">
+    <div className="absolute z-[1000] left-0 bottom-5 w-full transition-all ">
       <aside className="gap-4 flex flex-col w-full items-center justify-center relative top-1/4">
         <div
           ref={toolBarRef}
