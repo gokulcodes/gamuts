@@ -70,6 +70,7 @@ function ToolRenderer(props: { tool: ToolTypes; isActive: boolean }) {
         <input
           id="fileInput"
           type="file"
+          accept="image/*"
           ref={fileRef}
           onChange={handleImagePicker}
           className="opacity w-0 h-0"
@@ -185,11 +186,11 @@ function Toolbar() {
   }
 
   return (
-    <div className="absolute z-[1000] left-0 bottom-5 w-full transition-all ">
-      <aside className="gap-4 flex flex-col w-full items-center justify-center relative top-1/4">
+    <div className="absolute z-50  left-0 bottom-5 w-full transition-all ">
+      <aside className="gap-4 flex flex-col w-full items-center justify-center relative  top-1/4">
         <div
           ref={toolBarRef}
-          className="flex flex-row z-0 backdrop-blur-2xl gap-1 shadow-2xl animate-toolbarOpen items-center justify-center border border-white/10 bg-foreground/60 p-2 rounded-2xl"
+          className="flex flex-row z-0 backdrop-blur-2xl gap-1 shadow-2xl animate-toolbarOpen items-center justify-center border border-white/10 bg-foreground/60 p-2 rounded-2xl "
         >
           {Tools.map((tool) => (
             <ToolRenderer

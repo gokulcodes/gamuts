@@ -478,7 +478,7 @@ function OptionBar(props: { canvasRef: Konva.Stage | null }) {
       id="optionbar"
       ref={optionRef}
       onScroll={handleGradientVisibility}
-      className="pointer-events-auto cursor-crosshair overflow-auto absolute select-none right-0 h-full max-w-xs w-xs border z-50 border-white/10 animate-optionOpen bg-foreground/80 backdrop-blur-2xl"
+      className="pointer-events-auto cursor-crosshair overflow-auto fixed select-none right-0 h-full max-w-xs w-xs border z-50 border-white/10 animate-optionOpen bg-foreground/80 backdrop-blur-2xl"
     >
       <div className="w-full sticky bg-foreground/80 backdrop-blur-2xl top-0 left-0 z-50">
         <div className="w-full mb-3 flex justify-between border-b border-white/10">
@@ -1063,7 +1063,7 @@ function OptionBar(props: { canvasRef: Konva.Stage | null }) {
           </div>
         </div>
       ) : (
-        <div className="flex relative m-3 flex-col gap-6">
+        <div className="flex relative m-3 h-full flex-col gap-6">
           <div className="flex flex-col gap-3 items-start">
             <div className="flex items-center justify-between w-full">
               <p className="uppercase tracking-widest opacity-70 text-xs">
@@ -1122,7 +1122,7 @@ function OptionBar(props: { canvasRef: Konva.Stage | null }) {
       /> */}
       <button
         onClick={handleOptionCollapse}
-        className="fixed bottom-5 left-5 pointer-events-auto cursor-pointer text-md p-2 items-center bg-foreground/40 backdrop-blur-2xl border border-white/15 rounded-lg"
+        className="sticky bottom-5 left-5 pointer-events-auto cursor-pointer text-md shadow-2xl p-2 items-center bg-foreground/40 backdrop-blur-2xl border border-white/15 rounded-lg"
       >
         <GoSidebarCollapse />
       </button>
