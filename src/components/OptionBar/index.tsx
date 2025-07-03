@@ -38,7 +38,9 @@ function OptionBar(props: { canvasRef: Konva.Stage | null }) {
 
   const updateShapeStyle = useCallback(() => {
     const allStruct = structures;
-    for (const index of selectedShapes) {
+    for (const selectedName of selectedShapes) {
+      console.log("Selected Shape:", selectedName);
+      const index: number = Number(selectedName.split("-")[1]);
       if (allStruct.length <= index) return;
       allStruct[index].fill = optionState.fill;
       allStruct[index].stroke = optionState.borderColor;
@@ -516,7 +518,7 @@ function OptionBar(props: { canvasRef: Konva.Stage | null }) {
         className="h-30 opacity-0 pointer-events-none w-full bg-gradient-to-b z-50 from-foreground to-transparent sticky top-12 animate-opacity"
       /> */}
       {activeTab === 0 ? (
-        <div className="flex relative flex-col gap-4">
+        <div className="flex h-full relative flex-col gap-4">
           {/* TEXT_DECORATION */}
           <div className="flex px-5 border-b border-white/10 pb-4 flex-col items-start gap-4 justify-between">
             <div className="flex flex-col w-full gap-6">
@@ -837,7 +839,7 @@ function OptionBar(props: { canvasRef: Konva.Stage | null }) {
           </div>
         </div>
       ) : activeTab === 1 ? (
-        <div className="flex relative flex-col gap-4">
+        <div className="flex relative h-full flex-col gap-4">
           <div className="flex flex-col w-full gap-4">
             <div className="flex px-5 flex-row items-start gap-4 justify-between">
               <p>Blur</p>

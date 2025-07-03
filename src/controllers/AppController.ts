@@ -13,7 +13,7 @@ export type State = {
   toolbarVisible: boolean;
   structures: Array<Shape>;
   optionbarVisible: boolean;
-  selectedShapes: Array<number>;
+  selectedShapes: Array<string>;
   activeTool: string;
 };
 

@@ -54,7 +54,7 @@ export type Shape = {
   cornerRadius?: number;
   strokeWidth?: number;
   draggable?: boolean;
-  shapeName: string;
+  name: string;
   dash?: Array<number>;
 };
 

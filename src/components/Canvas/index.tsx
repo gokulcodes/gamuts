@@ -99,8 +99,8 @@ function Canvas() {
         setPan(false);
       } else if (event.code === "Backspace") {
         const indices = new Set(state.selectedShapes);
-        const newStruct = state.structures.filter((_, id) => {
-          return !indices.has(id);
+        const newStruct = state.structures.filter((struct) => {
+          return !indices.has(struct.name);
         });
         dispatch({
           type: "mutateStructures",
@@ -120,7 +120,9 @@ function Canvas() {
         // copy selected indices jsons
         const copyContent = [];
         for (const ind of state.selectedShapes) {
-          const selectedStruct = state.structures[ind];
+          const selectedStruct = state.structures.find(
+            (struct) => struct.name === ind
+          );
           copyContent.push(selectedStruct);
         }
         await navigator.clipboard.writeText(JSON.stringify(copyContent));
@@ -135,6 +137,32 @@ function Canvas() {
             structures: mutatedStruct,
           },
         });
+      } else if (
+        (event.metaKey || event.ctrlKey) &&
+        event.code === "BracketLeft"
+      ) {
+        // move selected shapes to one step down in the layer
+        // const mutatedStruct = [...state.structures];
+        // for (const selectedName of state.selectedShapes) {
+        //   const index: number = Number(selectedName.split("-")[1]);
+        //   if (mutatedStruct.length <= index) return;
+        //   const shape = mutatedStruct[index];
+        //   mutatedStruct.splice(index, 1);
+        //   mutatedStruct.splice(index - 1, 0, shape);
+        // }
+        // console.log("Mutated structures:", mutatedStruct);
+        // dispatch({
+        //   type: "mutateStructures",
+        //   payload: {
+        //     ...state,
+        //     structures: mutatedStruct,
+        //   },
+        // });
+      } else if (
+        (event.metaKey || event.ctrlKey) &&
+        event.code === "BracketRight"
+      ) {
+        // move selected shapes right
       }
     }
     function handlePanUp() {
@@ -153,9 +181,10 @@ function Canvas() {
     if (state.selectedShapes.length && trRef.current) {
       // Get the nodes from the refs Map
       const nodes = state.selectedShapes
-        .map((id) => shapeRefs.current.get(id))
+        .map((name) => shapeRefs.current.get(name))
         .filter((node) => node);
       trRef.current.nodes(nodes);
+      console.log("Selected shapes:", state.selectedShapes);
     } else if (trRef.current) {
       // Clear selection
       trRef.current.nodes([]);
@@ -221,7 +250,7 @@ function Canvas() {
         points: [],
         stroke: "transparent",
         draggable: true,
-        shapeName: "rect",
+        name: "rect",
       });
       // let shapeConfig = {
       //   x
@@ -241,7 +270,7 @@ function Canvas() {
         radius: 0,
         fill: "white",
         draggable: true,
-        shapeName: "circle",
+        name: "circle",
       });
       return;
     }
@@ -257,7 +286,7 @@ function Canvas() {
         stroke: "transparent",
         fill: "white",
         draggable: true,
-        shapeName: "polygon",
+        name: "polygon",
       });
       return;
     }
@@ -277,7 +306,7 @@ function Canvas() {
         fontFamily: "Kaushan Script",
         stroke: "transparent",
         draggable: true,
-        shapeName: "text",
+        name: "text",
       });
       return;
     }
@@ -295,7 +324,7 @@ function Canvas() {
           fill: "white",
           stroke: "white",
           draggable: true,
-          shapeName: "arrow",
+          name: "arrow",
         });
         return;
       }
@@ -415,8 +444,8 @@ function Canvas() {
         height: Math.abs(selectionRectangle.y2 - selectionRectangle.y1),
       };
 
-      const ids: Array<number> = [];
-      state.structures.filter((shape, index) => {
+      const ids: Array<string> = [];
+      state.structures.filter((shape) => {
         // Check if rectangle intersects with selection box
         const bound = getClientRect(shape);
         if (!shape || !bound) return;
@@ -424,7 +453,7 @@ function Canvas() {
         const isIntersecting = Konva.Util.haveIntersection(selBox, bound);
 
         if (isIntersecting) {
-          ids.push(index);
+          ids.push(shape.name);
         }
       });
       dispatch({
@@ -439,22 +468,37 @@ function Canvas() {
       return;
     }
     if (drawingShape) {
-      dispatch({
-        type: "mutateStructures",
-        payload: { ...state, structures: [...state.structures, drawingShape] },
-      });
-      if (state.activeTool === TOOL.ARROW) {
-        return;
+      if (
+        ((drawingShape.width ?? 0) > 10 && (drawingShape.height ?? 0) > 10) ||
+        (drawingShape.radius ?? 0) > 10
+      ) {
+        const drawingShapeCopy = { ...drawingShape };
+        drawingShapeCopy.name = `${drawingShapeCopy.name}-${state.structures.length}`;
+        console.log("Drawing shape:", drawingShapeCopy);
+        dispatch({
+          type: "mutateStructures",
+          payload: {
+            ...state,
+            structures: [...state.structures, drawingShapeCopy],
+          },
+        });
+        if (state.activeTool === TOOL.ARROW) {
+          return;
+        }
+        setDrawingShape(null);
+        dispatch({
+          type: "updateSelectedShapes",
+          payload: {
+            ...state,
+            selectedShapes: [drawingShapeCopy.name],
+          },
+        });
       }
-      setDrawingShape(null);
-      dispatch({
-        type: "updateSelectedShapes",
-        payload: {
-          ...state,
-          selectedShapes: [state.structures.length - 1],
-        },
-      });
     }
+    dispatch({
+      type: "changeTool",
+      payload: { ...state, activeTool: TOOL.SELECT },
+    });
     // canvasRef.current.content.style.cursor = "default";
   }
 
@@ -508,7 +552,7 @@ function Canvas() {
     // setOptionsAnchor(event.target.attrs);
     if (event.evt.shiftKey) {
       let existingShapes = state.selectedShapes;
-      existingShapes = [...existingShapes, event.target.index];
+      existingShapes = [...existingShapes, event.target.name()];
       dispatch({
         type: "updateSelectedShapes",
         payload: {
@@ -517,11 +561,13 @@ function Canvas() {
         },
       });
     } else {
+      const name = event.target.name();
+      // console.log("Clicked on shape:", );
       dispatch({
         type: "updateSelectedShapes",
         payload: {
           ...state,
-          selectedShapes: [event.target.index],
+          selectedShapes: [name],
         },
       });
     }
@@ -529,14 +575,14 @@ function Canvas() {
 
   function Renderer(shapes: Array<Shape | undefined | null>) {
     return shapes?.map((struct, index) => {
-      if (!struct?.shapeName) return;
-      if (struct.shapeName === "rect") {
+      if (!struct?.name) return;
+      if (struct.name.indexOf("rect") === 0) {
         return (
           // <GroupRect
           //   struct={struct}
           //   updateRef={(node: Konva.Node) => {
           //     if (node) {
-          //       shapeRefs.current.set(index, node);
+          //       shapeRefs.current.set(struct.name, node);;
           //     }
           //   }}
           // />
@@ -545,54 +591,54 @@ function Canvas() {
             <Rect
               ref={(node: Konva.Rect) => {
                 if (node) {
-                  shapeRefs.current.set(index, node);
+                  shapeRefs.current.set(struct.name, node);
                 }
               }}
               {...struct}
             />
           </Group>
         );
-      } else if (struct.shapeName === "circle") {
+      } else if (struct.name.indexOf("circle") === 0) {
         return (
           // @ts-expect-error
           <Circle
             key={index}
             ref={(node) => {
               if (node) {
-                shapeRefs.current.set(index, node);
+                shapeRefs.current.set(struct.name, node);
               }
             }}
             {...struct}
           />
         );
-      } else if (struct.shapeName === "polygon") {
+      } else if (struct.name.indexOf("polygon") === 0) {
         return (
           // @ts-expect-error
           <RegularPolygon
             key={index}
             ref={(node) => {
               if (node) {
-                shapeRefs.current.set(index, node);
+                shapeRefs.current.set(struct.name, node);
               }
             }}
             {...struct}
           />
         );
-      } else if (struct.shapeName === "arrow" && struct.points) {
+      } else if (struct.name.indexOf("arrow") === 0 && struct.points) {
         return (
           // @ts-expect-error
           <Arrow
             key={index}
             ref={(node) => {
               if (node) {
-                shapeRefs.current.set(index, node);
+                shapeRefs.current.set(struct.name, node);
               }
             }}
             points={struct.points}
             {...struct}
           />
         );
-      } else if (struct.shapeName === "image" && struct.image) {
+      } else if (struct.name.indexOf("image") === 0 && struct.image) {
         return (
           // @ts-expect-error
           <Image
@@ -600,7 +646,7 @@ function Canvas() {
             ref={(node) => {
               if (node) {
                 node.cache();
-                shapeRefs.current.set(index, node);
+                shapeRefs.current.set(struct.name, node);
               }
             }}
             image={struct.image}
@@ -612,14 +658,13 @@ function Canvas() {
             {...struct}
           />
         );
-      } else if (struct.shapeName === "text") {
-        console.log(struct);
+      } else if (struct.name.indexOf("text") === 0) {
         return (
           <TextCustom
             key={index}
             updateRef={(node: Konva.Node) => {
               if (node) {
-                shapeRefs.current.set(index, node);
+                shapeRefs.current.set(struct.name, node);
               }
             }}
             struct={struct}
@@ -630,7 +675,7 @@ function Canvas() {
   }
 
   function handleContextMenu() {}
-
+  console.log("Current structures:", state.structures);
   return (
     <TransformWrapper
       minScale={1}

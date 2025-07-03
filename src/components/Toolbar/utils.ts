@@ -18,7 +18,7 @@ async function getImage(
 }
 
 export async function CreateShapes(
-  shapeName: string,
+  name: string,
   // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   dispatch: Function,
   state: State,
@@ -29,7 +29,7 @@ export async function CreateShapes(
   function updateActiveTool(tool: string) {
     dispatch({ type: "changeTool", payload: { ...state, activeTool: tool } });
   }
-  switch (shapeName) {
+  switch (name) {
     case "Rect":
       //   shape = {
       //     x: 400,
@@ -42,7 +42,7 @@ export async function CreateShapes(
       //     points: [],
       //     stroke: "transparent",
       //     draggable: true,
-      //     shapeName: "rect",
+      //     name: "rect",
       //   };
       //   structures = [...structures, shape];
       updateActiveTool(TOOL.RECT);
@@ -58,7 +58,7 @@ export async function CreateShapes(
       //     radius: 100,
       //     fill: "white",
       //     draggable: true,
-      //     shapeName: "circle",
+      //     name: "circle",
       //   };
       //   structures = [...structures, shape];
       updateActiveTool(TOOL.CIRCLE);
@@ -74,7 +74,7 @@ export async function CreateShapes(
       //     stroke: "transparent",
       //     fill: "white",
       //     draggable: true,
-      //     shapeName: "polygon",
+      //     name: "polygon",
       //   };
       //   structures = [...structures, shape];
       updateActiveTool(TOOL.TRIANGLE);
@@ -91,7 +91,7 @@ export async function CreateShapes(
       //     fill: "white",
       //     stroke: "white",
       //     draggable: true,
-      //     shapeName: "arrow",
+      //     name: "arrow",
       //   };
       //   structures = [...structures, shape];
       updateActiveTool(TOOL.ARROW);
@@ -110,7 +110,7 @@ export async function CreateShapes(
         sides: 4,
         stroke: "transparent",
         draggable: true,
-        shapeName: "image",
+        name: "image",
       };
       structures = [...structures, shape];
       updateActiveTool(TOOL.IMAGE);
@@ -129,7 +129,7 @@ export async function CreateShapes(
       //     fill: "white",
       //     stroke: "white",
       //     draggable: true,
-      //     shapeName: "text",
+      //     name: "text",
       //   };
       //   structures = [...structures, shape];
       updateActiveTool(TOOL.TEXT);
