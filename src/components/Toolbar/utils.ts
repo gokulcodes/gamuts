@@ -110,7 +110,7 @@ export async function CreateShapes(
         sides: 4,
         stroke: "transparent",
         draggable: true,
-        name: "image",
+        name: `image-${state.structures.length}`,
       };
       structures = [...structures, shape];
       updateActiveTool(TOOL.IMAGE);

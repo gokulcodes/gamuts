@@ -39,44 +39,44 @@ function OptionBar(props: { canvasRef: Konva.Stage | null }) {
   const updateShapeStyle = useCallback(() => {
     const allStruct = structures;
     for (const selectedName of selectedShapes) {
-      console.log("Selected Shape:", selectedName);
+      console.log("Selected Shape:", selectedName, allStruct);
       const index: number = Number(selectedName.split("-")[1]);
       if (allStruct.length <= index) return;
-      allStruct[index].fill = optionState.fill;
-      allStruct[index].stroke = optionState.borderColor;
-      allStruct[index].strokeWidth = optionState.borderWidth;
-      allStruct[index].cornerRadius = optionState.borderRadius;
-      allStruct[index].dash = optionState.borderStyle;
-      allStruct[index].opacity = optionState.opacity / 100;
-      allStruct[index].shadowBlur = optionState.shadowBlur;
+      allStruct[index].fill = optionState?.fill;
+      allStruct[index].stroke = optionState?.borderColor;
+      allStruct[index].strokeWidth = optionState?.borderWidth;
+      allStruct[index].cornerRadius = optionState?.borderRadius;
+      allStruct[index].dash = optionState?.borderStyle;
+      allStruct[index].opacity = optionState?.opacity / 100;
+      allStruct[index].shadowBlur = optionState?.shadowBlur;
       allStruct[index].shadowOffset = {
-        x: optionState.shadowOffsetX,
-        y: optionState.shadowOffsetY,
+        x: optionState?.shadowOffsetX,
+        y: optionState?.shadowOffsetY,
       };
-      allStruct[index].shadowOpacity = optionState.shadowOpacity / 100;
-      allStruct[index].shadowColor = optionState.shadowColor;
-      allStruct[index].globalCompositeOperation = optionState.blendMode;
-      allStruct[index].lineJoin = optionState.lineJoins;
+      allStruct[index].shadowOpacity = optionState?.shadowOpacity / 100;
+      allStruct[index].shadowColor = optionState?.shadowColor;
+      allStruct[index].globalCompositeOperation = optionState?.blendMode;
+      allStruct[index].lineJoin = optionState?.lineJoins;
       allStruct[index].filters = [...new Array(...filterAdd.current)];
-      allStruct[index].blurRadius = optionState.blur;
-      allStruct[index].brightness = optionState.brightness / 100;
-      allStruct[index].contrast = optionState.contrast;
-      allStruct[index].enhance = optionState.enhance / 100;
-      allStruct[index].grayscale = optionState.grayscale;
-      allStruct[index].hue = optionState.HSL_hue;
-      allStruct[index].fontFamily = optionState.fontFamily;
-      allStruct[index].fontSize = optionState.fontSize;
-      allStruct[index].fontStyle = optionState.fontStyle;
-      allStruct[index].textDecoration = optionState.textDecoration;
-      allStruct[index].saturation = optionState.HSL_saturation;
-      allStruct[index].luminance = optionState.HSL_luminance;
-      allStruct[index].red = optionState.RGB_red;
-      allStruct[index].blue = optionState.RGB_blue;
-      allStruct[index].green = optionState.RGB_green;
-      allStruct[index].alpha = 1 - optionState.RGB_alpha / 100;
-      allStruct[index].threshold = optionState.mask;
-      allStruct[index].noise = optionState.noise / 100;
-      allStruct[index].blurRadius = optionState.blur;
+      allStruct[index].blurRadius = optionState?.blur;
+      allStruct[index].brightness = optionState?.brightness / 100;
+      allStruct[index].contrast = optionState?.contrast;
+      allStruct[index].enhance = optionState?.enhance / 100;
+      allStruct[index].grayscale = optionState?.grayscale;
+      allStruct[index].hue = optionState?.HSL_hue;
+      allStruct[index].fontFamily = optionState?.fontFamily;
+      allStruct[index].fontSize = optionState?.fontSize;
+      allStruct[index].fontStyle = optionState?.fontStyle;
+      allStruct[index].textDecoration = optionState?.textDecoration;
+      allStruct[index].saturation = optionState?.HSL_saturation;
+      allStruct[index].luminance = optionState?.HSL_luminance;
+      allStruct[index].red = optionState?.RGB_red;
+      allStruct[index].blue = optionState?.RGB_blue;
+      allStruct[index].green = optionState?.RGB_green;
+      allStruct[index].alpha = 1 - optionState?.RGB_alpha / 100;
+      allStruct[index].threshold = optionState?.mask;
+      allStruct[index].noise = optionState?.noise / 100;
+      allStruct[index].blurRadius = optionState?.blur;
     }
     dispatch({
       type: "mutateStructures",
