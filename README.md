@@ -1,6 +1,6 @@
 ## gamuts
 
-A simple tool that lets you sketch diagrams quickly with a hand-drawn feel and then transforms them into polished, professional-looking images perfect.
+A simple tool that lets you sketch diagrams quickly with a hand-drawn feel and then transforms them into polished, professional-looking images perfect
 
 ### Requirements:
 
